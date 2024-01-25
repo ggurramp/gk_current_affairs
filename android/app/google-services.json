@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "793902834508",
+    "firebase_url": "https://gk-current-affairs-2e5ab-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "gk-current-affairs-2e5ab",
+    "storage_bucket": "gk-current-affairs-2e5ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793902834508:android:afd58e91cae0694f3ae5e9",
+        "android_client_info": {
+          "package_name": "com.gurug.gk_current_affairs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "793902834508-p04dg6qvgthshlh04phnhas9j8gaq6eq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gurug.gk_current_affairs",
+            "certificate_hash": "9c5c665243ee0cae3f052907146c9b57544763cc"
+          }
+        },
+        {
+          "client_id": "793902834508-opl83a2h4cm45icqmchh597sc99mh0i9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZrkyAKUFtybS9QqME7WAvZ0F250eL_rI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "793902834508-opl83a2h4cm45icqmchh597sc99mh0i9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

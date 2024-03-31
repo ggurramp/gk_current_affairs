@@ -131,7 +131,7 @@ class OTPVerificationPage extends StatelessWidget {
                   Navigator.of(context).pop(); // Close the pop-up
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => QuizScreen()), // Navigate to QuizScreen
+                    MaterialPageRoute(builder: (context) => QuizScreen(questionIndex: '',)), // Navigate to QuizScreen
                   );
                 },
                 child: Text('OK'),

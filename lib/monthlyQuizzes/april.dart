@@ -2511,41 +2511,53 @@ class _aprilState extends State<april> {
             ..._questions[_currentQuestionIndex].options.asMap().entries.map((entry) {
               final optionIndex = entry.key;
               final optionText = entry.value;
-              return InkWell( // Added this InkWell
+              final isCorrectAnswer = optionIndex == _questions[_currentQuestionIndex].correctAnswerIndex;
+
+              return InkWell(
                 onTap: () {
                   setState(() {
                     _selectedAnswerIndex = optionIndex;
-                    _userAnswers[_currentQuestionIndex] = optionIndex; // Store user's answer
+                    _userAnswers[_currentQuestionIndex] = optionIndex;
                   });
                 },
-                child: ListTile(
-                  title: Text(optionText),
-                  leading: Radio<int>(
-                    value: optionIndex,
-                    groupValue: _selectedAnswerIndex,
-                    onChanged: (int? value) {
-                      setState(() {
-                        _selectedAnswerIndex = value;
-                        _userAnswers[_currentQuestionIndex] = value; // Store user's answer
-                      });
-                    },
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 8.0), // Add space between boxes
+                  decoration: BoxDecoration(
+                    color: _selectedAnswerIndex == optionIndex
+                        ? (isCorrectAnswer ? Colors.green[200] : Colors.red[300])
+                        : Colors.white,
+                    border: Border.all(
+                      color: _selectedAnswerIndex == optionIndex ? Colors.blue : Colors.grey,
+                      width: 2.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: ListTile(
+                    title: Text(optionText),
+                    leading: Radio<int>(
+                      value: optionIndex,
+                      groupValue: _selectedAnswerIndex,
+                      onChanged: (int? value) {
+                        setState(() {
+                          _selectedAnswerIndex = value;
+                          _userAnswers[_currentQuestionIndex] = value;
+                        });
+                      },
+                    ),
                   ),
                 ),
               );
             }).toList(),
-            // Show correct answer if an option is selected
-            // Show correct answer if an option is selected
             if (_selectedAnswerIndex != null)
               Text(
                 "Correct Answer: ${_questions[_currentQuestionIndex].options[_questions[_currentQuestionIndex].correctAnswerIndex]}",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green, // Set your desired color here
+                  color: Colors.green,
                 ),
               ),
             MyBannerAdWidget(), // Add the banner ad here
-
           ],
 
         ),

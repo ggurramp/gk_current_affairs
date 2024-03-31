@@ -91,7 +91,7 @@ class _julyState extends State<july> {
   "Gujarat"
   ],
   correctAnswerIndex: 2,
-  explanation: "Tamil Nadu topped the NITI Aayog's Export Preparedness Index 2022."
+  explanation: "Tamil Nadu has topped in EPI 2022, followed by Maharashtra and Karnataka. Gujarat, which held the top position in EPI 2021 (released in 2022) has been pushed to the fourth slot in EPI 2022"
   ),
 
   Question(

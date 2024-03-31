@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:async'; // Import the dart:async package
+import 'dart:async';
+
+import 'package:flutter_tts/flutter_tts.dart'; // Import the dart:async package
 
 class Question {
   final String questionText;
@@ -28,7 +30,9 @@ class _chiefMinistersScreenState extends State<chiefMinistersScreen> {
   int? _selectedAnswerIndex;
   int _currentQuestionIndex = 0;
   List<int?> _userAnswers = List.filled(100, null); // Initialize with the number of questions
+  FlutterTts flutterTts = FlutterTts();
 
+  bool isSpeaking = false;
   List<Question> _questions = [
     Question(
       questionText: "Who is the chief minister of Andhra Pradesh?",

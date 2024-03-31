@@ -29,8 +29,10 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 android {
+
     namespace "com.gurug.gk_current_affairs"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34
+//    compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {

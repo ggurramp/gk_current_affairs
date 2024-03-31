@@ -1,4 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:gk_current_affairs/economy/Capital_market.dart';
+import 'package:gk_current_affairs/economy/Global_consensus.dart';
+import 'package:gk_current_affairs/economy/Inflation.dart';
+import 'package:gk_current_affairs/economy/a_s.dart';
+import 'package:gk_current_affairs/economy/banking.dart';
+import 'package:gk_current_affairs/economy/bopoe.dart';
+import 'package:gk_current_affairs/economy/edoi.dart';
+import 'package:gk_current_affairs/economy/els.dart';
+import 'package:gk_current_affairs/economy/erd.dart';
+import 'package:gk_current_affairs/economy/f_s.dart';
+import 'package:gk_current_affairs/economy/fer.dart';
+import 'package:gk_current_affairs/economy/fiii.dart';
+import 'package:gk_current_affairs/economy/ftd.dart';
+import 'package:gk_current_affairs/economy/g&d.dart';
+import 'package:gk_current_affairs/economy/gegt.dart';
+import 'package:gk_current_affairs/economy/gfmd.dart';
+import 'package:gk_current_affairs/economy/globalisation.dart';
+import 'package:gk_current_affairs/economy/globalisation_2.dart';
+import 'package:gk_current_affairs/economy/guri.dart';
+import 'package:gk_current_affairs/economy/gvt_f.dart';
+import 'package:gk_current_affairs/economy/iage.dart';
+import 'package:gk_current_affairs/economy/iep.dart';
+import 'package:gk_current_affairs/economy/im.dart';
+import 'package:gk_current_affairs/economy/indian_Economy.dart';
+import 'package:gk_current_affairs/economy/is_l.dart';
+import 'package:gk_current_affairs/economy/lfcioe.dart';
+import 'package:gk_current_affairs/economy/mlfl.dart';
+import 'package:gk_current_affairs/economy/oorc.dart';
+import 'package:gk_current_affairs/economy/outofeconomy.dart';
+import 'package:gk_current_affairs/economy/p&sc.dart';
+import 'package:gk_current_affairs/economy/pin.dart';
+import 'package:gk_current_affairs/economy/rbi_mpc.dart';
+import 'package:gk_current_affairs/economy/rtb.dart';
+import 'package:gk_current_affairs/economy/sd&cc.dart';
+import 'package:gk_current_affairs/economy/wto.dart';
 import 'package:gk_current_affairs/subjectWiseBits/adl.dart';
 import 'package:gk_current_affairs/subjectWiseBits/ancientHistory_4.dart';
 import 'package:gk_current_affairs/subjectWiseBits/ancientHistory_5.dart';
@@ -55,6 +90,8 @@ import 'package:gk_current_affairs/subjectWiseBits/upsc.dart';
 import 'package:gk_current_affairs/subjectWiseBits/vbr.dart';
 import 'package:gk_current_affairs/subjectWiseBits/vicepresident.dart';
 import 'package:gk_current_affairs/subjectWiseBits/wcstrctn.dart';
+import '../economy/is_d.dart';
+import '../economy/tr_fec.dart';
 import '../subjectWiseBits/CONSTITUTIONALPRESCRIPTIONS.dart';
 import '../subjectWiseBits/NATIONALCOMMISSIONFORPROTECTIONOFCHILDrIGHTS.dart';
 import '../subjectWiseBits/NITIAayog.dart';
@@ -119,31 +156,62 @@ import '../subjectWiseBits/tribunals.dart';
 import '../subjectWiseBits/unionTerritories.dart';
 import '../subjectWiseBits/universe_solar_system.dart';
 import 'World_capitals_currencies_South_North_america.dart';
-import 'chiefMinisters.dart';
 import 'ncm.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'GK Current Affairs',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          title: Text('GK Current Affairs'),
-        ),
-        body: SubjectsList(),
-      ),
+// void main() {
+//   runApp(MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'GK Current Affairs',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: Scaffold(
+//         appBar: AppBar(
+//           backgroundColor: Colors.blue,
+//           title: Text('GK Current Affairs'),
+//           actions: [
+//             // Add the IconButton here
+//             IconButton(
+//               onPressed: () {
+//                 _showAlertDialog(context);
+//               },
+//               icon: Icon(Icons.help_outline),
+//             ),
+//           ],
+//
+//         ),
+//         body: SubjectsList(),
+//       ),
+//     );
+//   }
+  // Function to show the AlertDialog
+  void _showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Contact Us'),
+          content: Text(
+              'If there are any mistakes or suggestions, please reach out to us on WhatsApp at +917893305330.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
-}
+
+
 
 class SubjectsList extends StatelessWidget {
   @override
@@ -152,10 +220,21 @@ class SubjectsList extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: Text('Quizzes'),
+        actions: [
+          // Add the IconButton here
+          IconButton(
+            onPressed: () {
+              _showAlertDialog(context);
+            },
+            icon: Icon(Icons.help_outline),
+          ),
+        ],
       ),
       body: Material(
+
         child: ListView(
           padding: EdgeInsets.all(16.0),
+
           children: [
 
             SubjectTile(
@@ -182,15 +261,81 @@ class SubjectsList extends StatelessWidget {
             ),
             SubjectTile(
               subject: 'Economy',
-              subTopics: ["5Years planning of indian Economy","National Income"],
+              subTopics: ["Output of an Economy",
+                "Growth & Development",
+                "Sustainable Developement & Climate change",
+                "Poverty & Social Sector",
+                "Food Security",
+                "Agriculture Sector",
+                "Industrial Sector & Liberalization",
+                "Infrastructure Development",
+                "Infrastructure Models",
+                "Integrated Energy Policy",
+                "Government Finances",
+                "Reserve Bank of India & Monetary policy Committe",
+                "Banking",
+                "Inflation",
+                "Capital Market",
+                "Planning India",
+                "Globalisation",
+                "Globalisation 2",
+                "Export, Growth , SEZ's",
+                "Foreign Trade Policy",
+                "Balance Of Payments of Economics",
+                "Trade Reforms & Foreign Exchange Management",
+                "Foreign Investment In india",
+                "Multilateral Financial Instituitions",
+                "External Debit Of India",
+                "exchange rate Dermination",
+                "Foreign Exhange Reserves",
+                "Regional Trading blocks",
+                "India And Global Economy",
+                "Global Economy A Great Transition",
+                "Lesson From crisis in open Economies",
+                "Global Financial Melt Down",
+                "Global Consensus",
+                "Global Unresolved Issues",
+                "World Trade Organisation",
+                "Indian Economy",
+
+
+
+
+
+
+                "5Years planning of indian Economy","National Income"],
             ),
 
           ],
         ),
       ),
+
+    );
+  }
+  // Function to show the AlertDialog
+  void _showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Contact Us'),
+          content: Text(
+              "If you find any mistakes or have suggestions, please feel free to reach out to us on WhatsApp at +917893305330."
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
+
 
 class SubjectTile extends StatelessWidget {
   final String subject;
@@ -991,6 +1136,291 @@ class SubjectTile extends StatelessWidget {
         );
         break;
 
+
+        //economy
+      case 'Output of an Economy':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => opoae()),
+        );
+        break;
+      case "Growth & Development":
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => growth_developement()),
+        );
+
+        break;
+      case 'Sustainable Developement & Climate change':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => sd_cc()),
+        );
+        break;
+      case 'Poverty & Social Sector':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => p_sc()),
+        );
+    //
+      case 'Food Security':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => f_s()),
+        );
+        break;
+      case 'Agriculture Sector':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => a_s()),
+        );
+        break;
+      case 'Industrial Sector & Liberalization':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => is_l()),
+        );
+        break;
+      case 'Infrastructure Development':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => isd()),
+        );
+        break;
+      case 'Infrastructure Models':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => im()),
+        );
+        break;
+      case 'Integrated Energy Policy':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => iep()),
+        );
+        break;
+      case 'Government Finances':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => gvt_f()),
+        );
+        break;
+      case 'Reserve Bank of India & Monetary policy Committe':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => rbi_mpc()),
+        );
+
+        break;
+      case 'Banking':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => banking()),
+        );
+        break;
+      case 'Inflation':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => inflation(
+          )),
+        );
+        break;
+      case 'Capital Market':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => c_m()),
+        );
+
+        break;
+      case 'Planning India':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => pin(
+
+          )),
+        );
+        break;
+      case 'Globalisation':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => globalisation(
+          )),
+        );
+        break;
+      case 'Globalisation 2':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => globalisation_2(
+          )),
+        );
+
+        break;
+      case "Export, Growth , SEZ's":
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => els(
+
+          )),
+        );
+        break;
+      case 'Foreign Trade Policy':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ftp()),
+        );
+        break;
+      case 'Balance Of Payments of Economics':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => bope()),
+        );
+
+        break;
+      case 'Trade Reforms & Foreign Exchange Management':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => tf_fem()),
+        );
+        break;
+      case 'Foreign Investment In india':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => fiii()),
+        );
+        break;
+      case 'Multilateral Financial Instituitions':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => mlfi()),
+        );
+
+        break;
+
+        break;
+    //'Medieval Indian History 15'
+
+      case 'External Debit Of India':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => eboi()),
+        );
+        break;
+      case 'exchange rate Dermination':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => erd()),
+        );
+
+        break;
+      case 'Foreign Exhange Reserves':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => fer()),
+        );
+        break;
+      case 'Regional Trading blocks':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => rtb(
+          )),
+        );
+        break;
+      case 'India And Global Economy':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => iage()),
+        );
+
+        break;
+      case 'Global Economy A Great Transition':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => geat(
+
+          )),
+        );
+        break;
+      case 'Lesson From crisis in open Economies':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => lfcioe(
+          )),
+        );
+        break;
+      case 'Global Financial Melt Down':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => gfmd(
+          )),
+        );
+
+        break;
+      case 'Overview of Crisis Since 2008 ':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => medievalHistory_9(
+
+          )),
+        );
+        break;
+      case 'Overview of Crisis Since 2008':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => oorcs()),
+        );
+        break;
+      case 'Global Consensus':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => global_consensus()),
+        );
+
+        break;
+      case 'Global Unresolved Issues':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => guri()),
+        );
+        break;
+      case 'World Trade Organisation':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => wto()),
+        );
+        break;
+      case 'Indian Economy':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => indianEconomy()),
+        );
+
+        break;
+      case 'Medieval Indian History 15':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => medievalHistory_15()),
+        );
+        break;
+
+    //from here modern
+      case 'Medieval Indian History 10':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ancientHistory_4()),
+        );
+        break;
+      case 'Medieval Indian History 11':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ancientHistory_5()),
+        );
+
+        break;
+      case 'Medieval Indian History 612':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ancientHistory_6()),
+        );
         break;
     // universe_solar_system
     }

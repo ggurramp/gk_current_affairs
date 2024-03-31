@@ -9,22 +9,22 @@ import 'package:gk_current_affairs/monthlyQuizzes/september.dart';
 
 import 'august.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MonthlyQuizzes(),
-    );
-  }
-}
+// void main() {
+//   runApp(MyApp());
+// }
+//
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: MonthlyQuizzes(),
+//     );
+//   }
+// }
 
 class MonthlyQuizzes extends StatelessWidget {
   final List<String> months = [
-    'March',
+   // 'March',
     'April',
     'May',
     'June',
@@ -40,10 +40,12 @@ class MonthlyQuizzes extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Months Quizzes'),
-        backgroundColor: Colors.blue,
+        title: Text('Monthly Quizzes'),
+        backgroundColor: Colors.blue[500],
+        shape: StadiumBorder(),
       ),
       body: ListView.builder(
+
         itemCount: months.length,
         itemBuilder: (context, index) {
           return GestureDetector(
@@ -121,6 +123,7 @@ class MonthlyQuizzes extends StatelessWidget {
               margin: EdgeInsets.all(8.0),
               padding: EdgeInsets.all(16.0),
               decoration: BoxDecoration(
+                color: Colors.white54,
                 border: Border.all(color: Colors.blue),
                 borderRadius: BorderRadius.circular(10.0),
               ),

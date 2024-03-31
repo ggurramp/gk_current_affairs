@@ -8,20 +8,23 @@ import '../path_to_my_banner_ad_widget.dart';
 import 'HomePage.dart';
 import 'QuizScreen.dart';
 
-void main() {
-  runApp(CurrentAffairsApp());
-}
+// void main() {
+//   runApp(CurrentAffairsApp());
+// }
 
-class CurrentAffairsApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CurrentAffairsScreen(),
-    );
-  }
-}
+// class CurrentAffairsApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: CurrentAffairsScreen(),
+//     );
+//   }
+// }
 
 class CurrentAffairsScreen extends StatefulWidget {
+  final String title;
+
+  CurrentAffairsScreen({required this.title});
   @override
   _CurrentAffairsScreenState createState() => _CurrentAffairsScreenState();
 }
@@ -155,6 +158,7 @@ class _CurrentAffairsScreenState extends State<CurrentAffairsScreen> {
       return [];
     }
   }
+
 
   Future<List<String>> fetchCategoriesFromFirestore() async {
     final firestore = FirebaseFirestore.instance;

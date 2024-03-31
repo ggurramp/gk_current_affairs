@@ -1,6 +1,7 @@
 //guru// Dart imports
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gk_current_affairs/screens/HomePage.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,28 +23,45 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
 
 class QuizScreen extends StatefulWidget {
-  final String? userIdentifier;
+
+  final String questionIndex;
+  final Key? key;  // Add this line to include the key parameter
+  QuizScreen({required this.questionIndex, this.questionId,  this.key});
+
+  // Add the 'questionId' property
   final String? questionId;
 
-  QuizScreen({Key? key, this.userIdentifier, this.questionId}) : super(key: key);
+
+
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
 
+
 class _QuizScreenState extends State<QuizScreen> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  TextEditingController questionController = TextEditingController();
+  TextEditingController answerController = TextEditingController();
+  TextEditingController correctAnswerController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController explanationController = TextEditingController();
+  String? selectedCategory;
+  String _formattedTimestamp = DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now());
 
+  String? _currentQuestionId;
   final VerticalDragGestureRecognizer _gestureRecognizer =
   VerticalDragGestureRecognizer();
   String? _userIdentifier;
   int? _selectedAnswerIndex;
   int _currentQuestionIndex = 0;
   BannerAd? _bannerAd;
-
+  List<String> _formattedTimestamps = []; // Changed to a list
   List<int> _favoriteQuestions = [];
-  List<String> _formattedTimestamp = [];
+
+
+  String? questionId;
 
 
 
@@ -66,45 +84,221 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
+    print('QuizScreen initState:  questionId=${widget.questionId}');
+
+    // Initialize _currentQuestionId with the value passed through the widget
+    _currentQuestionId = widget.questionId;
 
     _requestNotificationPermission();
     //_gestureRecognizer.onEnd = _onSwipe;
-    _getUserIdentifier(); // Call this method to retrieve user's identifier
+    _getUserIdentifier(); // Call this method to retrieve the user's identifier
     _initSharedPreferences();
-    // Initialize Firebase Messaging
-    // Initialize Firebase Messaging
-    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    //   // Handle when the app is in the foreground
-    //   _handleMessage(message);
-    // });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Initialize AdMob
     MobileAds.instance.initialize();
 
     // Load the banner ad
     _loadBannerAd();
+    // Handle notification when the app is in the foreground
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      handleNotificationClick(message.data);
+    });
 
+    // Fetch and set questions based on the specific questionId
+    // _fetchAndSetSpecificQuestion();
   }
+
+  // void _fetchAndSetSpecificQuestion() async {
+  //   final questionsData = await fetchQuestionsFromFirestore();
+  //   FirebaseFirestore.instance.collection('questions').doc(questionId).get();
+  //   // Assuming that questionId is an index in the questionsData list
+  //   int? questionIndex = int.tryParse(_currentQuestionId ?? '');
+  //
+  //   if (questionIndex != null && questionIndex >= 0) {
+  //     final filteredQuestions = questionsData.where((data) => data['questionIndex'] == questionIndex).toList();
+  //
+  //     if (filteredQuestions.isNotEmpty) {
+  //       setState(() {
+  //         _questions = [filteredQuestions[0]['question'] as String];
+  //         _answers = [List<String>.from(filteredQuestions[0]['answers'])];
+  //         _correctAnswers = [filteredQuestions[0]['correctAnswerIndex'] as int];
+  //         _explanations = [filteredQuestions[0]['explanation'] as String];
+  //       });
+  //     }
+  //   }
+  // }
+
+
+  void _postQuestion() {
+    // Get the values entered in the text fields
+    String question = questionController.text;
+    String answers = answerController.text;
+    int correctAnswerIndex = int.tryParse(correctAnswerController.text) ?? 0;
+    String explanation = explanationController.text;
+    String category = selectedCategory ?? ''; // Get the selected category value
+
+    // Check if the category is not empty
+    if (category.isNotEmpty) {
+      // Split the answers string into a list of answers
+      List<String> answerList = answers.split(',');
+
+      // Write the data to Firestore
+      FirebaseFirestore.instance.collection('questions').add({
+        'question': question,
+        'answers': answerList,
+        'correctAnswerIndex': correctAnswerIndex,
+        'explanation': explanation,
+        'category': category,
+        'timestamp': Timestamp.now(), // Set the timestamp to the current time
+      }).then((value) {
+        // If the data is successfully written to Firestore, clear the text fields
+        questionController.clear();
+        answerController.clear();
+        correctAnswerController.clear();
+        explanationController.clear();
+        categoryController.clear(); // Clear the category field
+        // Close the alert dialog
+        Navigator.pop(context);
+        // Show a snackbar to indicate successful posting
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Question posted successfully'),
+        ));
+      }).catchError((error) {
+        // If an error occurs while writing to Firestore, display an error message
+        print('Error posting question: $error');
+        // Optionally, you can show a toast or snackbar to indicate the error
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('An error occurred while posting the question'),
+        ));
+      });
+    } else {
+      // If the category is empty, show an error message
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Please select a category'),
+      ));
+    }
+  }
+
+
+  void _openInputDialog() {
+    List<String> categories = ['Polity', 'Economy', 'History','Geography','International Relations','Science and Technology','Awards','Environment','Sports',]; // Define predefined category values
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: EdgeInsets.all(0),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Post Question', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: questionController,
+                    decoration: InputDecoration(labelText: 'Question'),
+                  ),
+                  TextField(
+                    controller: answerController,
+                    decoration: InputDecoration(labelText: 'Answers (Comma separated)'),
+                  ),
+                  TextField(
+                    controller: correctAnswerController,
+                    decoration: InputDecoration(
+                      labelText: 'Correct Answer Index',
+                      hintText: '0 = A, 1 = B, 2 = C, 3 = D, 4 = E',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [CorrectAnswerInputFormatter()],
+                  ),
+
+
+
+                  DropdownButtonFormField(
+                    value: selectedCategory, // Provide a default value if needed
+                    items: categories.map((String category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedCategory = newValue!;
+                      });
+                    },
+                    decoration: InputDecoration(labelText: 'Category'),
+                  ),
+                  TextField(
+                    controller: explanationController,
+                    decoration: InputDecoration(labelText: 'Explanation'),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _postQuestion,
+                        child: Text('Post'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+
+  void handleNotificationClick(Map<String, dynamic> data) {
+    String route = data['route'];
+    int? questionIndex = int.tryParse(data['questionIndex'] ?? '');
+
+    print('Handling notification click: route=$route, questionIndex=$questionIndex');
+
+    if (route == '/QuizScreen' && questionIndex != null) {
+      // Navigate to the QuizScreen with the specified questionIndex
+      _navigateToQuizScreen(questionIndex);
+    }
+  }
+
+
+
+
+  void _navigateToQuizScreen(int? questionIndex) {
+    print('Navigating to QuizScreen with questionIndex: $questionIndex');
+
+    if (questionIndex != null && questionIndex >= 0 && questionIndex < _questions.length) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => QuizScreen(
+
+            questionId: questionIndex.toString(), questionIndex: '', // Pass questionId as a string
+          ),
+        ),
+      );
+    } else {
+      print('Invalid questionIndex: $questionIndex');
+    }
+  }
+
+
+
+
   @override
   void dispose() {
     // Dispose of the banner ad when the screen is disposed
@@ -170,21 +364,15 @@ class _QuizScreenState extends State<QuizScreen> {
         final String? questionId = data?['questionId'];
 
         // Perform the desired action with the questionId
-        _navigateToQuizScreen(questionId);
+        _navigateToQuizScreen(questionId as int?);
       }
     }
   }
 
 
-  void _navigateToQuizScreen(String? questionId) {
-    print('Navigating to QuizScreen with questionId: $questionId');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => QuizScreen(userIdentifier: _userIdentifier, questionId: questionId),
-      ),
-    );
-  }
+
+
+
 
 
   Future<void> _initSharedPreferences() async {
@@ -325,7 +513,7 @@ class _QuizScreenState extends State<QuizScreen> {
       _correctAnswers = questionsData.map((data) => data['correctAnswerIndex'] as int).toList();
       _explanations = questionsData.map((data) => data['explanation'] as String).toList();
 
-      _formattedTimestamp = questionsData.map((data) {
+      _formattedTimestamps = questionsData.map((data) {
         final timestamp = data['timestamp'] as Timestamp?;
         if (timestamp != null) {
           return DateFormat('dd-MM-yyyy').format(timestamp.toDate());
@@ -390,20 +578,22 @@ class _QuizScreenState extends State<QuizScreen> {
   void _getUserIdentifier() {
     // Retrieve the user's identifier (e.g., email) from Firebase authentication
     final User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    if (user != null && user.uid != null) {
+      print('User is signed in with UID: ${user.uid}');
       setState(() {
-        if (user.providerData.any((userInfo) =>
-        userInfo.providerId == 'google.com')) {
+        if (user.providerData.any((userInfo) => userInfo.providerId == 'google.com')) {
           _userIdentifier = user.email ?? user.phoneNumber;
         } else if (user.email != null) {
           _userIdentifier = user.email;
         } else if (user.phoneNumber != null) {
-          _userIdentifier =
-              user.phoneNumber; // Change this to fit your identifier format
+          _userIdentifier = user.phoneNumber; // Change this to fit your identifier format
         }
       });
+    } else {
+      print('User is not signed in');
     }
   }
+
   void _selectAnswer(int? index) {
     setState(() {
       if (_selectedAnswerIndex == index) {
@@ -502,19 +692,31 @@ class _QuizScreenState extends State<QuizScreen> {
           children: [
             Row(
               children: [
-
                 GestureDetector(
                   onTap: () {
                     _showExplanation(); // Show explanation on a new page
                   },
-                  child: Text(
-                    'Click For Explanation',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 4.0,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)), // Use BorderRadius.all for a rounded rectangle
+                      color: Colors.pink[100],
+                    ),
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Explanation',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[900],
+                      ),
                     ),
                   ),
+
                 ),
               ],
             ),
@@ -533,7 +735,7 @@ class _QuizScreenState extends State<QuizScreen> {
         _currentQuestionIndex >= _answers.length ||
         _currentQuestionIndex >= _correctAnswers.length ||
         _currentQuestionIndex >= _explanations.length ||
-        _currentQuestionIndex >= _formattedTimestamp.length) {
+        _currentQuestionIndex >= _formattedTimestamps.length) {
 
       // Reset _currentQuestionIndex to a safe value, like 0
       _currentQuestionIndex = 0;
@@ -558,7 +760,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   },
                 ),
                 Text(
-                  'Current Affairs', // Text to be placed after the menu icon
+                  'Daily Quizzes', // Text to be placed after the menu icon
                   style: TextStyle(
                     fontSize: 18, // Customize the font size as needed
                     color: Colors.white, // Customize the text color as needed
@@ -579,7 +781,10 @@ class _QuizScreenState extends State<QuizScreen> {
 
           ],
         ),
-        body: GestureDetector(
+        body:
+        GestureDetector(
+
+
           dragStartBehavior: DragStartBehavior.start,
           onHorizontalDragEnd: (details) {
             if (details.velocity.pixelsPerSecond.dx > 0) {
@@ -629,7 +834,7 @@ class _QuizScreenState extends State<QuizScreen> {
                             child: Row(
                               children: [
                                 Text(
-                                  '[ ${_formattedTimestamp[_currentQuestionIndex]} ] ',
+                                  '[ ${_formattedTimestamps[_currentQuestionIndex]} ] ',
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.deepPurple,
@@ -646,7 +851,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                       List<String> categories = await fetchCategoriesFromFirestore();
                                       _showCategoryModal(categories);
                                     },
-                                    child: Text("Show Categories")
+                                    child: Text("Categories")
                                 ),
 
 
@@ -673,44 +878,55 @@ class _QuizScreenState extends State<QuizScreen> {
                           children: List.generate(
                             _answers[_currentQuestionIndex].length,
                                 (index) {
-                              final optionLabel = String.fromCharCode(65 + index);
-
-                              // Determine whether the current option is the correct answer.
+                              //final optionLabel = String.fromCharCode(65 + index);
                               final isCorrectAnswer = index == _correctAnswers[_currentQuestionIndex];
+                              final isSelected = _selectedAnswerIndex != null && _selectedAnswerIndex == index;
 
-                              // Determine the color for the current answer tile.
-                              final color = _selectedAnswerIndex != null
-                                  ? isCorrectAnswer
-                                  ? Colors.green // Correct answer, selected by user.
-                                  : _selectedAnswerIndex == index
-                                  ? Colors.red // Wrong answer, selected by user.
-                                  : Colors.black // Other options.
-                                  : Colors.green; // Default color when nothing is selected.
+                              final color = isSelected
+                                  ? isCorrectAnswer ? Colors.green : Colors.red
+                                  : Colors.black;
 
-                              return ListTile(
-                                contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                                title: Text('($optionLabel) ${_answers[_currentQuestionIndex][index]}'),
-                                leading: Container(
-                                  width: 1,
-                                  child: Icon(
-                                    _selectedAnswerIndex != null
-                                        ? isCorrectAnswer
-                                        ? Icons.check_circle
-                                        : Icons.close_outlined
-                                        : Icons.radio_button_unchecked,
-                                    color: color, // Set the determined color here.
-                                  ),
-                                ),
+                              return GestureDetector(
                                 onTap: () {
                                   _selectAnswer(index);
                                 },
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(vertical: 5),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: color, width: 2),
+                                    color: isSelected ? color.withOpacity(0.2) : null,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 1,
+                                        child: Icon(
+                                          isSelected
+                                              ? isCorrectAnswer
+                                              ? Icons.check_circle
+                                              : Icons.close_outlined
+                                              : Icons.radio_button_unchecked,
+                                          color: color,
+                                        ),
+                                      ),
+                                      SizedBox(width: 30),
+                                      Expanded(
+                                        child: Text(
+                                          ' ${_answers[_currentQuestionIndex][index]}',
+                                          style: TextStyle(color: color),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               );
                             },
                           ),
-
                         ),
-
                       ),
+
 //Guru10
 
                       Padding(
@@ -720,30 +936,38 @@ class _QuizScreenState extends State<QuizScreen> {
                           children: [
                             _buildExplanation(),
                             // Display the banner ad widget
-                            if (_bannerAd != null && _bannerAd!.size != null)
-                              Container(
-                                width: _bannerAd!.size.width.toDouble(),
-                                height: _bannerAd!.size.height.toDouble(),
-                                child: AdWidget(ad: _bannerAd!),
-                              ),
-
-
+                            // if (_bannerAd != null && _bannerAd!.size != null)
+                            //   Container(
+                            //     width: _bannerAd!.size.width.toDouble(),
+                            //     height: _bannerAd!.size.height.toDouble(),
+                            //     child: AdWidget(ad: _bannerAd!),
+                            //   ),
                           ],
                         ),
                       ),
                     ],
                   ),
+
                 ),
               ),
             ],
           ),
-
         ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openInputDialog,
+        tooltip: 'Add Question',
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
         bottomNavigationBar: Container(
-          color: Colors.red[400], // Set your desired background color here
+          decoration: BoxDecoration(
+            color: Colors.blue, // Set your desired background color here
+            shape: BoxShape.circle, // Use BoxShape.circle for a circular shape
+          ),
           child: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: Colors.white70, // Set the same color as the container
+              canvasColor: Colors.blue, // Set the same color as the container
             ),
 
 
@@ -761,7 +985,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.share, color: Colors.red , size: 20,),
-                  label: 'share',
+                  label: '',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.refresh, color: Colors.red , size: 35),
@@ -784,7 +1008,9 @@ class _QuizScreenState extends State<QuizScreen> {
                   _nextQuestion() ;
                 }
 
+
               },
+
             ),
           ),
         )
@@ -825,7 +1051,7 @@ class _QuizScreenState extends State<QuizScreen> {
     );
 
     if (selectedTimestamp != null) {
-      final int selectedTimestampIndex = _formattedTimestamp.indexOf(selectedTimestamp);
+      final int selectedTimestampIndex = _formattedTimestamps.indexOf(selectedTimestamp);
       if (selectedTimestampIndex != -1) {
         setState(() {
           _currentQuestionIndex = selectedTimestampIndex; // Update the current question index
@@ -1013,31 +1239,39 @@ class CategoryDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Category Details'),
+        backgroundColor: Colors.blue,
+        title: Text('Category Wise'),
       ),
-      body: ListView.builder(
-        itemCount: questions.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(
-              'Q: ${questions[index]}',
-              style: TextStyle(color: Colors.red),
+
+          body: Container(
+            //color: Colors.green[200], // Set your desired background color
+            child: ListView.builder(
+              itemCount: questions.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    'Q: ${questions[index]}',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Answer: ${answers[index][correctAnswers[index]]}',
+                        style: TextStyle(color: Colors.blueAccent),
+                      ),
+                      ExplanationDropdown(explanation: explanations[index]),
+                    ],
+                  ),
+                );
+              },
             ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Answer: ${answers[index][correctAnswers[index]]}',
-                  style: TextStyle(color: Colors.blueAccent),
-                ),
-                ExplanationDropdown(explanation: explanations[index]),
-              ],
-            ),
-          );
-        },
-      ),
+          ),
+
+
     );
   }
 }
@@ -1069,6 +1303,20 @@ class _ExplanationDropdownState extends State<ExplanationDropdown> {
       ),
       subtitle: _isExpanded ? Text(widget.explanation, style: TextStyle(color: Colors.blue)) : null,
     );
+  }
+}
+
+class CorrectAnswerInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final int? parsed = int.tryParse(newValue.text);
+
+    if (parsed != null && newValue.text.length <= 1 && parsed >= 0 && parsed <= 5) {
+      return newValue;
+    }
+    // Return empty value if the input is invalid
+    return TextEditingValue.empty;
   }
 }
 

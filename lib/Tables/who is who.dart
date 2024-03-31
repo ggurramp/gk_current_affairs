@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-
-import '../path_to_my_banner_ad_widget.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() {
   runApp(who_is_who());
 }
 
-class who_is_who extends StatelessWidget {
+class who_is_who extends StatefulWidget {
+  @override
+  _who_is_whoState createState() => _who_is_whoState();
+}
+
+class _who_is_whoState extends State<who_is_who> {
+  FlutterTts flutterTts = FlutterTts();
+  bool isSpeaking = false;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,11 +30,18 @@ class who_is_who extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+          actions: [
+            IconButton(
+              icon: Icon(isSpeaking ? Icons.volume_up : Icons.volume_off),
+              onPressed: () {
+                toggleSpeaking();
+              },
+            ),
+          ],
           title: Text('Who Is Who'),
         ),
-        body: ListView( // Wrap the Column with a ListView
+        body: ListView(
           children: [
-            MyBannerAdWidget(), // Add the banner ad here
             SingleChildScrollView(
               child: DataTable(
                 dataRowHeight: 80.0,
@@ -41,7 +55,15 @@ class who_is_who extends StatelessWidget {
                   for (var i = 0; i < data.length; i++)
                     DataRow(
                       cells: [
-                        DataCell(Text(data[i][0])),
+                        DataCell(
+                          TextButton(
+                            onPressed: () {
+                              // Speak the entire content of the table
+                              speakText(getAllNamesAndRoles());
+                            },
+                            child: Text(data[i][0]),
+                          ),
+                        ),
                         DataCell(Text(data[i][1])),
                       ],
                     ),
@@ -53,10 +75,32 @@ class who_is_who extends StatelessWidget {
       ),
     );
   }
+
+  String getAllNamesAndRoles() {
+    // Concatenate all names and roles into a single string
+    return data.map((entry) => '${entry[0]} is ${entry[1]}').join('. ');
+  }
+
+  Future<void> speakText(String text) async {
+    await flutterTts.speak(text);
+  }
+
+  void toggleSpeaking() {
+    setState(() {
+      isSpeaking = !isSpeaking;
+      if (isSpeaking) {
+        // Speak the entire content of the table
+        speakText(getAllNamesAndRoles());
+      } else {
+        // Stop speaking
+        flutterTts.stop();
+      }
+    });
+  }
 }
 
-
 final List<List<String>> data = [
+
 
 
     ['President', 'Smt. Droupadi Murmu'],

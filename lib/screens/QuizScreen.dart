@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:gk_current_affairs/screens/LoginPage.dart';
+import '../admob/MyInterstitialAdWidget.dart';
 import '../path_to_my_banner_ad_widget.dart';
 import 'favorite_questions_screen.dart';
 import 'ExplanationPage.dart';
@@ -129,59 +130,81 @@ class _QuizScreenState extends State<QuizScreen> {
   // }
 
 
-  void _postQuestion() {
+  void _postQuestion() async {
     // Get the values entered in the text fields
-    String question = questionController.text;
-    String answers = answerController.text;
-    int correctAnswerIndex = int.tryParse(correctAnswerController.text) ?? 0;
-    String explanation = explanationController.text;
+    String question = questionController.text.trim();
+    String answers = answerController.text.trim();
+    String correctAnswerIndexText = correctAnswerController.text.trim();
+    String explanation = explanationController.text.trim();
     String category = selectedCategory ?? ''; // Get the selected category value
 
-    // Check if the category is not empty
-    if (category.isNotEmpty) {
-      // Split the answers string into a list of answers
-      List<String> answerList = answers.split(',');
+    // Check if any field is empty
+    if (question.isEmpty ||
+        answers.isEmpty ||
+        correctAnswerIndexText.isEmpty ||
+        explanation.isEmpty ||
+        category.isEmpty) {
+      // Display specific error message for empty fields
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('All fields are mandatory'),
+        ),
+      );
+      return; // Exit function if any field is empty
+    }
 
-      // Write the data to Firestore
-      FirebaseFirestore.instance.collection('questions').add({
-        'question': question,
-        'answers': answerList,
-        'correctAnswerIndex': correctAnswerIndex,
-        'explanation': explanation,
-        'category': category,
-        'timestamp': Timestamp.now(), // Set the timestamp to the current time
-      }).then((value) {
+    // Convert correctAnswerIndex to int
+    int correctAnswerIndex = int.tryParse(correctAnswerIndexText) ?? 0;
+
+    // Split the answers string into a list of answers
+    List<String> answerList = answers.split(',');
+
+    try {
+      // Get the currently logged-in user
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Save the question data to Firestore along with the username
+        await FirebaseFirestore.instance.collection('questions').add({
+          'question': question,
+          'answers': answerList,
+          'correctAnswerIndex': correctAnswerIndex,
+          'explanation': explanation,
+          'category': category,
+          'username': user.email, // Save the username (email) of the user
+          'timestamp': Timestamp.now(), // Set the timestamp to the current time
+        });
+
         // If the data is successfully written to Firestore, clear the text fields
         questionController.clear();
         answerController.clear();
         correctAnswerController.clear();
         explanationController.clear();
         categoryController.clear(); // Clear the category field
-        // Close the alert dialog
         Navigator.pop(context);
         // Show a snackbar to indicate successful posting
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Question posted successfully'),
         ));
-      }).catchError((error) {
-        // If an error occurs while writing to Firestore, display an error message
-        print('Error posting question: $error');
-        // Optionally, you can show a toast or snackbar to indicate the error
+      } else {
+        // If user is null, display an error message
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('An error occurred while posting the question'),
+          content: Text('User is not logged in'),
         ));
-      });
-    } else {
-      // If the category is empty, show an error message
+      }
+    } catch (error) {
+      // If an error occurs while writing to Firestore, display an error message
+      print('Error posting question: $error');
+      // Optionally, you can show a toast or snackbar to indicate the error
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Please select a category'),
+        content: Text('An error occurred while posting the question'),
       ));
     }
   }
 
 
   void _openInputDialog() {
-    List<String> categories = ['Polity', 'Economy', 'History','Geography','International Relations','Science and Technology','Awards','Environment','Sports',]; // Define predefined category values
+    List<String> categories = ['polity', 'economy', 'history','geography','international relations','science & technology','awards, honours & persons','environment','sports','appointments','important dates','state news','schemes','society','events','meetings',"books & authors",'others']; // Define predefined category values
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -338,13 +361,15 @@ class _QuizScreenState extends State<QuizScreen> {
       if (data.containsKey('category')) {
         String category = data['category'];
 
-        // Capitalize the first letter and make the rest lowercase to ensure uniqueness and consistent formatting
-        uniqueCategories.add(category[0].toUpperCase() + category.substring(1).toLowerCase());
+        // Normalize category names
+        String normalizedCategory = category.trim(); // Remove leading/trailing spaces
+        uniqueCategories.add(normalizedCategory);
       }
     }
 
     return uniqueCategories.toList();
   }
+
 
   Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     // Handle the message when the app is in the background or terminated
@@ -760,7 +785,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   },
                 ),
                 Text(
-                  'Daily Quizzes', // Text to be placed after the menu icon
+                  'Daily Current Affairs Quizzes', // Text to be placed after the menu icon
                   style: TextStyle(
                     fontSize: 18, // Customize the font size as needed
                     color: Colors.white, // Customize the text color as needed
@@ -799,6 +824,10 @@ class _QuizScreenState extends State<QuizScreen> {
 
           child: Stack(
             children: [
+              MyInterstitialAdWidget(
+                adUnitId: 'ca-app-pub-8650911541008756/7410489682',
+                // Provide your interstitial ad unit ID here
+              ),
 
               Padding(
                 padding: const EdgeInsets.all(8.0), // Add padding to all four sides
@@ -962,12 +991,12 @@ class _QuizScreenState extends State<QuizScreen> {
 
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: Colors.blue, // Set your desired background color here
+            color: Colors.white, // Set your desired background color here
             shape: BoxShape.circle, // Use BoxShape.circle for a circular shape
           ),
           child: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: Colors.blue, // Set the same color as the container
+              canvasColor: Colors.white, // Set the same color as the container
             ),
 
 
@@ -980,19 +1009,19 @@ class _QuizScreenState extends State<QuizScreen> {
                 //   label: '',
                 // ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.arrow_back, color: Colors.red, size: 40),
+                  icon: Icon(Icons.arrow_back, color: Colors.blue, size: 40),
                   label: '',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.share, color: Colors.red , size: 20,),
+                  icon: Icon(Icons.share, color: Colors.blue , size: 20,),
                   label: '',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.refresh, color: Colors.red , size: 35),
+                  icon: Icon(Icons.refresh, color: Colors.blue , size: 35),
                   label: '',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.arrow_forward_rounded, color: Colors.red , size: 40),
+                  icon: Icon(Icons.arrow_forward_rounded, color: Colors.blue , size: 40),
                   label: '',
                 ),
 
@@ -1065,160 +1094,160 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
 
-  void _showMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        final menuItems = <Widget>[
-          if (_userIdentifier == null) // Show "Login" only when the user is not logged in
-            ListTile(
-              leading: Icon(Icons.login),
-              title: Text('Create An Account or Login '),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-              },
-            ),
-          if (_userIdentifier != null) // Show user's identifier when logged in
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('User: $_userIdentifier'), // Display the user's identifier here
-              onTap: () {
-                // Handle tapping on the user's identifier, if needed
-                Navigator.pop(context); // Close the bottom sheet
-              },
-            ),
-          if (_userIdentifier != null)
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () {
-                _logout();
-                Navigator.pop(context); // Close the bottom sheet
-                // _showMenu(context); // Refresh the menu options
-              },
-            ),
-
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () {
-              Navigator.pop(context); // Close the bottom sheet
-              _openSettingsPage(); // Open the settings page
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.rate_review),
-            title: Text('Give Rating On Playstore'),
-            onTap: () {
-              Navigator.pop(context); // Close the bottom sheet
-              _rateUs(); // Open the settings page
-            },
-          ),
-
-          ListTile(
-            leading: Icon(Icons.info),
-            title: Text('About'),
-            onTap: () {
-              Navigator.pop(context); // Close the bottom sheet
-              _openAboutPage(); // Open the about page
-            },
-          ),
-
-
-        ];
-        return Container(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: menuItems,
-          ),
-        );
-      },
-    );
-  }
-  void _logout() async {
-    await FirebaseAuth.instance.signOut();
-    setState(() {
-      _userIdentifier = null;
-      // Reset any other necessary state variables here
-    });
-  }
-
-  void _rateUs() async {
-    final playStoreLink = 'https://play.google.com/store/apps/details?id=com.gurug.gk_current_affairs&pcampaignid=web_share';
-
-    if (await canLaunch(playStoreLink)) {
-      await launch(playStoreLink);
-    } else {
-      // Handle the case where the URL can't be launched, e.g., display an error message.
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Could not open Play Store link.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Close the dialog
-                },
-                child: const Text('Close'),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  void _openAboutPage() {
-    //Navigator.pop(context); // Close the bottom sheet
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('About Us'),
-          content: Text(
-              'Discover a comprehensive platform dedicated to enhancing your knowledge and preparing you for success. Our app offers a diverse range of content, including current affairs, general knowledge, online exams, competitive exams, and state-specific exams conducted across India. Whether you\'re seeking to stay informed or excel in your studies, our app provides the resources you need to excel and stay ahead in your academic and competitive journey. please give your valuable feedback reddyguru122@gmail.com'
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-              },
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _openSettingsPage() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Settings'),
-          content: Text(
-              'Will Update Soon'
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-              },
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-
-
-}
+  // void _showMenu(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     builder: (context) {
+  //       final menuItems = <Widget>[
+  //         if (_userIdentifier == null) // Show "Login" only when the user is not logged in
+  //           ListTile(
+  //             leading: Icon(Icons.login),
+  //             title: Text('Create An Account or Login '),
+  //             onTap: () {
+  //               Navigator.pop(context);
+  //               Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)));
+  //             },
+  //           ),
+  //         if (_userIdentifier != null) // Show user's identifier when logged in
+  //           ListTile(
+  //             leading: Icon(Icons.person),
+  //             title: Text('User: $_userIdentifier'), // Display the user's identifier here
+  //             onTap: () {
+  //               // Handle tapping on the user's identifier, if needed
+  //               Navigator.pop(context); // Close the bottom sheet
+  //             },
+  //           ),
+  //         if (_userIdentifier != null)
+  //           ListTile(
+  //             leading: Icon(Icons.logout),
+  //             title: Text('Logout'),
+  //             onTap: () {
+  //               _logout();
+  //               Navigator.pop(context); // Close the bottom sheet
+  //               // _showMenu(context); // Refresh the menu options
+  //             },
+  //           ),
+  //
+  //         ListTile(
+  //           leading: Icon(Icons.settings),
+  //           title: Text('Settings'),
+  //           onTap: () {
+  //             Navigator.pop(context); // Close the bottom sheet
+  //             _openSettingsPage(); // Open the settings page
+  //           },
+  //         ),
+  //         ListTile(
+  //           leading: Icon(Icons.rate_review),
+  //           title: Text('Give Rating On Playstore'),
+  //           onTap: () {
+  //             Navigator.pop(context); // Close the bottom sheet
+  //             _rateUs(); // Open the settings page
+  //           },
+  //         ),
+  //
+  //         ListTile(
+  //           leading: Icon(Icons.info),
+  //           title: Text('About'),
+  //           onTap: () {
+  //             Navigator.pop(context); // Close the bottom sheet
+  //             _openAboutPage(); // Open the about page
+  //           },
+  //         ),
+  //
+  //
+  //       ];
+  //       return Container(
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: menuItems,
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+//   void _logout() async {
+//     await FirebaseAuth.instance.signOut();
+//     setState(() {
+//       _userIdentifier = null;
+//       // Reset any other necessary state variables here
+//     });
+//   }
+//
+//   void _rateUs() async {
+//     final playStoreLink = 'https://play.google.com/store/apps/details?id=com.gurug.gk_current_affairs&pcampaignid=web_share';
+//
+//     if (await canLaunch(playStoreLink)) {
+//       await launch(playStoreLink);
+//     } else {
+//       // Handle the case where the URL can't be launched, e.g., display an error message.
+//       showDialog(
+//         context: context,
+//         builder: (BuildContext context) {
+//           return AlertDialog(
+//             title: Text('Error'),
+//             content: Text('Could not open Play Store link.'),
+//             actions: <Widget>[
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.pop(context); // Close the dialog
+//                 },
+//                 child: const Text('Close'),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     }
+//   }
+//
+//   void _openAboutPage() {
+//     //Navigator.pop(context); // Close the bottom sheet
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text('About Us'),
+//           content: Text(
+//               'Discover a comprehensive platform dedicated to enhancing your knowledge and preparing you for success. Our app offers a diverse range of content, including current affairs, general knowledge, online exams, competitive exams, and state-specific exams conducted across India. Whether you\'re seeking to stay informed or excel in your studies, our app provides the resources you need to excel and stay ahead in your academic and competitive journey. please give your valuable feedback reddyguru122@gmail.com'
+//           ),
+//           actions: <Widget>[
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.pop(context); // Close the dialog
+//               },
+//               child: const Text('Close'),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+//
+//   void _openSettingsPage() {
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text('Settings'),
+//           content: Text(
+//               'Will Update Soon'
+//           ),
+//           actions: <Widget>[
+//             TextButton(
+//               onPressed: () {
+//                 Navigator.pop(context); // Close the dialog
+//               },
+//               child: const Text('Close'),
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
+//
+//
+//
+ }
 
 
 
@@ -1264,6 +1293,10 @@ class CategoryDetailScreen extends StatelessWidget {
                         style: TextStyle(color: Colors.blueAccent),
                       ),
                       ExplanationDropdown(explanation: explanations[index]),
+                      MyInterstitialAdWidget(
+                        adUnitId: 'ca-app-pub-8650911541008756/7410489682',
+                        // Provide your interstitial ad unit ID here
+                      ),
                     ],
                   ),
                 );

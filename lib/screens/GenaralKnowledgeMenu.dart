@@ -8,6 +8,7 @@ import 'package:gk_current_affairs/screens/statesAndGovernors.dart';
 import 'package:gk_current_affairs/screens/statesCapitalsIndia.dart';
 import 'package:gk_current_affairs/screens/world_capitals_currencies_Asia.dart';
 
+import '../admob/MyInterstitialAdWidget.dart';
 import 'World_capitals_currencies_Africa.dart';
 import 'World_capitals_currencies_Europe.dart';
 import 'World_capitals_currencies_South_North_america.dart';
@@ -78,7 +79,9 @@ class GeneralKnowledgeMenu extends StatelessWidget {
                 _buildButton(context, 9, 'World Capitals & Currencies part 2(Europe)', World_capitals_currencies_Europe()),
                 _buildButton(context, 10, 'World Capitals & Currencies part 3(Africa)', World_capitals_currencies_Africa()),
                 _buildButton(context, 11, 'World Capitals & Currencies part 4(N.A,S.A,Australia)', World_capitals_currencies_South_North_america()),
-                // Add more buttons as needed...World_capitals_currencies_Europe
+                MyInterstitialAdWidget(
+                  adUnitId: 'ca-app-pub-8650911541008756/7410489682', // Provide your interstitial ad unit ID here
+                ),  // Add more buttons as needed...World_capitals_currencies_Europe
               ],
             ),
           ),

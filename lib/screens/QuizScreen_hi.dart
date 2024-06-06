@@ -855,7 +855,7 @@ class _QuizScreen_hiState extends State<QuizScreen_hi> {
               title: Text('Create An Account or Login '),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)));
               },
             ),
           if (_userIdentifier != null) // Show user's identifier when logged in

@@ -90,6 +90,7 @@ import 'package:gk_current_affairs/subjectWiseBits/upsc.dart';
 import 'package:gk_current_affairs/subjectWiseBits/vbr.dart';
 import 'package:gk_current_affairs/subjectWiseBits/vicepresident.dart';
 import 'package:gk_current_affairs/subjectWiseBits/wcstrctn.dart';
+import '../admob/MyInterstitialAdWidget.dart';
 import '../economy/is_d.dart';
 import '../economy/tr_fec.dart';
 import '../subjectWiseBits/CONSTITUTIONALPRESCRIPTIONS.dart';
@@ -158,38 +159,6 @@ import '../subjectWiseBits/universe_solar_system.dart';
 import 'World_capitals_currencies_South_North_america.dart';
 import 'ncm.dart';
 
-// void main() {
-//   runApp(MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'GK Current Affairs',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//       ),
-//       home: Scaffold(
-//         appBar: AppBar(
-//           backgroundColor: Colors.blue,
-//           title: Text('GK Current Affairs'),
-//           actions: [
-//             // Add the IconButton here
-//             IconButton(
-//               onPressed: () {
-//                 _showAlertDialog(context);
-//               },
-//               icon: Icon(Icons.help_outline),
-//             ),
-//           ],
-//
-//         ),
-//         body: SubjectsList(),
-//       ),
-//     );
-//   }
-  // Function to show the AlertDialog
   void _showAlertDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -236,7 +205,9 @@ class SubjectsList extends StatelessWidget {
           padding: EdgeInsets.all(16.0),
 
           children: [
-
+            MyInterstitialAdWidget(
+              adUnitId: 'ca-app-pub-8650911541008756/7410489682', // Provide your interstitial ad unit ID here
+            ),
             SubjectTile(
               subject: 'History',
               subTopics: ['Ancient Indian History 1', 'Ancient Indian History 2', 'Ancient Indian History 3', 'Ancient Indian History 4', 'Ancient Indian History 5',"Ancient Indian History 6",'Medieval Indian History 1', 'Medieval Indian History 2', 'Medieval Indian History 3', 'Medieval Indian History 4', 'Medieval Indian History 5',"Medieval Indian History 6",'Medieval Indian History 7', 'Medieval Indian History 8', 'Medieval Indian History 9', 'Medieval Indian History 10', 'Medieval Indian History 11',"Medieval Indian History 12",'Medieval Indian History 13', 'Medieval Indian History 14', 'Medieval Indian History 15', ],

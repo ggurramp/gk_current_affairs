@@ -4,22 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart'; // Import the google_mobile_ads package
+import '../admob/MyInterstitialAdWidget.dart';
 import '../path_to_my_banner_ad_widget.dart';
 import 'HomePage.dart';
 import 'QuizScreen.dart';
-
-// void main() {
-//   runApp(CurrentAffairsApp());
-// }
-
-// class CurrentAffairsApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: CurrentAffairsScreen(),
-//     );
-//   }
-// }
 
 class CurrentAffairsScreen extends StatefulWidget {
   final String title;
@@ -277,11 +265,11 @@ class _CurrentAffairsScreenState extends State<CurrentAffairsScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -298,9 +286,7 @@ class _CurrentAffairsScreenState extends State<CurrentAffairsScreen> {
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,
-
               children: [
-
                 Text(
                   '[ ${_formattedTimestamp[currentIndex]} ] ',
                   style: TextStyle(
@@ -325,7 +311,7 @@ class _CurrentAffairsScreenState extends State<CurrentAffairsScreen> {
                 _showCategoryModal(categories);
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green,
+                backgroundColor: Colors.green,
               ),
               child: Text(
                 "Topic \n Wise",
@@ -365,136 +351,60 @@ class _CurrentAffairsScreenState extends State<CurrentAffairsScreen> {
       body: Column(
         children: [
           Expanded(
-            child: PageView.builder(
-              controller: PageController(),
-              itemCount: newsArticles.length,
+            child: ListView.builder(
+              itemCount: titles.length,
               itemBuilder: (context, index) {
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (imageUrls[index] != null)
-                            Container(
-                              height: 200,
-                              width: double.infinity,
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrls[index]!,
-                                placeholder: (context, url) => SizedBox(
-                                  width: double.infinity,
-                                  height: 200,
-                                  child: Stack(
-                                    children: [
-
-                                      Container(
-                                        width: double.infinity * 0.33,
-                                        color: Colors.blue,
-                                      ),
-                                      Container(
-                                        width: double.infinity * 0.33,
-                                        color: Colors.green,
-                                      ),
-                                      Container(
-                                        width: double.infinity * 0.34,
-                                        color: Colors.orange,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) => Icon(Icons.error),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ListTile(
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                MyBannerAdWidget(), // Add the banner ad here
-                                Text(
-                                  titles[index] ?? '',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 2.0),
-                                Text(
-                                  newsArticles[index] ?? '',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15.0,
-                                  ),
-                                ),
-                                MyBannerAdWidget(), // Add the banner ad here
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-
-                                    GestureDetector(
-                                      onTap: () {
-                                        //_showPreviousDates();
-                                      },
-
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Text(
-                                            '[ ${_formattedTimestamp[index]} ] ',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.pink,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                    IconButton(
-                                      icon: favoriteArticles.contains(index)
-                                          ? Icon(Icons.favorite, color: Colors.red)
-                                          : Icon(Icons.favorite_border),
-                                      onPressed: () {
-                                        setState(() {
-                                          if (index < newsArticles.length) {
-                                            if (favoriteArticles.contains(index)) {
-                                              favoriteArticles.remove(index);
-                                            } else {
-                                              favoriteArticles.add(index);
-                                            }
-                                            _saveFavorites();
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                return Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                  child: ListTile(
+                    title: Text(titles[index] ?? ''),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ArticleDetailsScreen(
+                            title: titles[index] ?? '',
+                            content: newsArticles[index] ?? '',
+                            imageUrl: imageUrls[index],
+                            timestamp: _formattedTimestamp[index] ?? '',
                           ),
-                          SizedBox(height: 8.0),
-                          Divider(),
-                        ],
-                      ),
+                        ),
+                      );
+                    },
+                    trailing: IconButton(
+                      icon: favoriteArticles.contains(index)
+                          ? Icon(Icons.favorite, color: Colors.red)
+                          : Icon(Icons.favorite_border),
+                      onPressed: () {
+                        setState(() {
+                          if (favoriteArticles.contains(index)) {
+                            favoriteArticles.remove(index);
+                          } else {
+                            favoriteArticles.add(index);
+                          }
+                          _saveFavorites();
+                        });
+                      },
                     ),
                   ),
                 );
               },
             ),
           ),
-          // if (_bannerAd != null)
-          //   Container(
-          //     height: 50.0, // Adjust the height as needed
-          //     child: AdWidget(ad: _bannerAd!),
-          //   ),
+          MyBannerAdWidget(),
         ],
       ),
+
+
+
     );
   }
 }
+
 
 class ExpandableDropdown extends StatefulWidget {
   final String article;
@@ -715,6 +625,10 @@ class CategoryDetailScreen extends StatelessWidget {
                 ),
               ),
               children: [
+                MyInterstitialAdWidget(
+                  adUnitId: 'ca-app-pub-8650911541008756/7410489682',
+                  // Provide your interstitial ad unit ID here
+                ),
                 MyBannerAdWidget(), // Add the banner ad here
                 Padding(
                   padding: EdgeInsets.all(16.0),
@@ -816,6 +730,61 @@ class _DateDetailPageState extends State<DateDetailPage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+
+class ArticleDetailsScreen extends StatelessWidget {
+  final String title;
+  final String content;
+  final String? imageUrl;
+  final String timestamp;
+
+  ArticleDetailsScreen({required this.title, required this.content, this.imageUrl, required this.timestamp});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            if (imageUrl != null)
+              Image.network(
+                imageUrl!,
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+              ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    content,
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Published on: $timestamp',
+                    style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
+            ),
+            MyInterstitialAdWidget(
+              adUnitId: 'ca-app-pub-8650911541008756/7410489682',
+              // Provide your interstitial ad unit ID here
+            ),
+          ],
+        ),
       ),
     );
   }

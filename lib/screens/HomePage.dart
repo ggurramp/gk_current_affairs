@@ -1,35 +1,28 @@
 import 'dart:math';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gk_current_affairs/screens/CurrentAffairs_te.dart';
 import 'package:gk_current_affairs/screens/FactStories_hi.dart';
-// import 'package:gk_current_affairs/screens/CurrentAffairs_te.dart';
 import 'package:gk_current_affairs/screens/QuizScreen_hi.dart';
 import 'package:gk_current_affairs/screens/QuizScreen_te.dart';
 import 'package:gk_current_affairs/screens/SubjectWiseBits_te.dart';
 import 'package:gk_current_affairs/screens/premiumTables.dart';
 import 'package:gk_current_affairs/screens/subjectWiseBits.dart';
-import 'package:gk_current_affairs/screens/teluguBooks.dart';
-import 'package:gk_current_affairs/screens/teluguOldQuestionPapers.dart';
+import 'package:gk_current_affairs/screens/books_epapers.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../main.dart';
+import '../oldQuestionPapers/old_papers_pdf_url.dart';
 import '../monthlyQuizzes/monthlyQuizzes.dart';
 import '../monthlyQuizzes/monthlyQuizzes_te.dart';
+import '../oldQuestionPapers/testing.dart';
 import 'CurrentAffairs.dart';
 import 'CurrentAffairs_hi.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'FactStories.dart';
 import 'FactStories_te.dart';
 import 'GenaralKnowledgeMenu.dart';
 import 'LoginPage.dart';
 import 'QuizScreen.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'dataTables_countryWise.dart';
-import 'indianMultipleMedals.dart'; // Add this import
-
 
 enum TileType {
   CurrentAffairsQuizzes,
@@ -39,6 +32,7 @@ enum TileType {
   AmazingFacts,
   subjectWiseBits,
   MonthlyQuizzes,
+  Aptitude_Reasoning,
   MyHomePage,
 }
 
@@ -64,6 +58,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _currentLanguage = 'english';
+  String? _userEmail;
 
 
 
@@ -72,22 +67,24 @@ class _HomePageState extends State<HomePage> {
     switch (index) {
       case 0:
         return TileType.CurrentAffairsQuizzes;
-      // case 1:
-      //   return TileType.CurrentAffairsStories;
+      case 1:
+        return TileType.CurrentAffairsStories;
     // case 1:
     //   return TileType.CurrentAffairsStories;
-      case 6:
+      case 7:
         return TileType.GeneralKnowledgeQuizzes;
-      case 2:
-        return TileType.PremiumTables;
       case 3:
-        return TileType.AmazingFacts;
+        return TileType.PremiumTables;
       case 4:
+        return TileType.AmazingFacts;
+      case 5:
         return TileType.subjectWiseBits;
       case 6:
         return TileType.MyHomePage;
-      case 1:
+      case 2:
         return TileType.MonthlyQuizzes;
+      case 8:
+        return TileType.Aptitude_Reasoning;
 
       default:
       // Handle unknown tile type more gracefully or return a default value MonthlyQuizzes
@@ -95,44 +92,46 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
-
   // Create a list of labels to be displayed in the square widgets MonthlyQuizzes
   List<String> get labels {
     String amazingFactsLabel = 'Amazing \n Facts';
     String subjectWiseBitsLabel = 'Subject Wise Bits';
     String currentAffairsQuizzesLabel = 'Current Affairs Quizzes';
-   // String currentAffairsStoriesLabel = 'Current Affairs';
+   String currentAffairsStoriesLabel = 'Current Affairs';
     String generalKnowledgeQuizzesLabel = 'General Knowledge Quizzes';
     String PremiumTablesLabel = "Premium Tables \n(Updated)";
-    String MonthlyQuizzesLabel = "Monthly Top Current Affairs bits";
+    String MonthlyQuizzesLabel = "Monthly Current Affairs Exams";
+    String Aptitude_ReasoningLabel = "Old Question Papers";
 
     if (_currentLanguage == 'తెలుగు') {
       amazingFactsLabel = 'మీకు తెలుసా!';
       currentAffairsQuizzesLabel = 'కరెంట్ అఫైర్స్ క్విజ్‌లు';
-     // currentAffairsStoriesLabel = 'కరెంట్ అఫైర్స్';
+      currentAffairsStoriesLabel = 'కరెంట్ అఫైర్స్';
       generalKnowledgeQuizzesLabel = 'జనరల్ నాలెడ్జ్ క్విజ్‌లు';
       PremiumTablesLabel = "విలువైన పట్టికలు \n(Updated)";
       subjectWiseBitsLabel = "సబ్జెక్ట్‌వైజ్ \nబిట్స్";
       MonthlyQuizzesLabel = "నెలవారీ టాప్  కరెంట్ అఫైర్స్ బిట్స్";
+      Aptitude_ReasoningLabel = "పాత ప్రశ్న పత్రాలు";
     } else if (_currentLanguage == 'हिंदी') {
       amazingFactsLabel = 'अद्भुत \n तथ्य';
       currentAffairsQuizzesLabel = 'करेंट अफेयर्स प्रश्नोत्तरी';
-      //currentAffairsStoriesLabel = 'करेंट अफेयर्स ';
+      currentAffairsStoriesLabel = 'करेंट अफेयर्स ';
       generalKnowledgeQuizzesLabel = 'सामान्य ज्ञान प्रश्नोत्तरी';
+      Aptitude_ReasoningLabel = "Aptitude & Reasoning";
 
     }
 
     return [
 
       currentAffairsQuizzesLabel,
-     // currentAffairsStoriesLabel,
+     currentAffairsStoriesLabel,
       MonthlyQuizzesLabel,
       PremiumTablesLabel,
       amazingFactsLabel,
       subjectWiseBitsLabel,
-      "Text Books \n & \n E-Paper's",
+      "Books \n & \n E-Paper's",
       generalKnowledgeQuizzesLabel,
+      Aptitude_ReasoningLabel,
 
 
 
@@ -150,14 +149,15 @@ class _HomePageState extends State<HomePage> {
   // Different colors for each square widget
   final List<Color> colors = [
     Colors.red,
+    Colors.red,
+    Colors.red,
+    Colors.blue,
+    Colors.blue,
     Colors.blue,
     Colors.green,
-    Colors.yellow,
-    Colors.purple,
-    Colors.orange,
-    Colors.lightGreenAccent,
-    Colors.pinkAccent,
-    // Add more colors if you have more labels...
+    Colors.green,
+    Colors.green,
+
   ];
 
 
@@ -166,30 +166,20 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.blue,
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-
+          title: _userIdentifier != null
+              ? Text('Welcome ${_userIdentifier?.substring(0, min(5, _userIdentifier?.length ?? 0))}')
+              : InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)),
+              );
+            },
+            child: Text(
+              "Click Here For Login",
+              style: TextStyle(color: Colors.white), // Optional, to ensure the text color matches AppBar's title style
+            ),
           ),
-          title:Text(
-            "GURUG",
-            style: TextStyle(color: Colors.white), // Optional, to ensure the text color matches AppBar's title style
-          ),
-
-           //   ? Text('Welcome ${_userIdentifier?.substring(0, min(5, _userIdentifier?.length ?? 0))}')
-             // : InkWell(
-            // onTap: () {
-            //   Navigator.push(
-            //     context,
-            //     MaterialPageRoute(builder: (context) => LoginPage()),
-            //   );
-            // },
-            // child: Text(
-            //   "Click Here For Login",
-            //   style: TextStyle(color: Colors.white), // Optional, to ensure the text color matches AppBar's title style
-            // ),
-
-         //   child:
-       //   ),
 
 
       automaticallyImplyLeading: false,
@@ -238,11 +228,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+      body: Column(
 
-
-
-
-        body: Column(
     children: [
 
 
@@ -253,7 +240,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisCount: 3,
           mainAxisSpacing: 10.0,
           crossAxisSpacing: 10.0,
-          childAspectRatio: 1.0,
+          childAspectRatio: 1,
         ),
           itemCount: min(labels.length, colors.length),
 
@@ -268,7 +255,7 @@ class _HomePageState extends State<HomePage> {
                           builder: (context) => QuizScreen(questionIndex: '',)));
                     } else if (_currentLanguage == 'తెలుగు') {
                       Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => QuizScreen_te()));
+                          builder: (context) => QuizScreen_te(questionIndex: '',)));
                     } else if (_currentLanguage == 'हिंदी') {
                       Navigator.push(context, MaterialPageRoute(
                           builder: (context) => QuizScreen_hi()));
@@ -335,6 +322,18 @@ class _HomePageState extends State<HomePage> {
                           builder: (context) => MonthlyQuizzes()));
                     }
                     break;
+                  case TileType.Aptitude_Reasoning:
+                    if (_currentLanguage == 'english') {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => FormulaTabs()));
+                    } else if (_currentLanguage == 'తెలుగు') {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => FormulaTabs()));
+                    } else if (_currentLanguage == 'हिंदी') {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => FormulaTabs()));
+                    }
+                    break;
 
 
                   case TileType.subjectWiseBits:
@@ -355,7 +354,7 @@ class _HomePageState extends State<HomePage> {
 
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => MyHomePage()),
+                      MaterialPageRoute(builder: (context) => books_epapers()),
                     );
                     break;
                   // case TileType.MonthlyQuizzes:
@@ -378,13 +377,14 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: colors[index], width: 2.0),
-                    borderRadius: BorderRadius.circular(15.0),
+                    borderRadius: BorderRadius.circular(10.0),
                   ),
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: Center(
                     child: Text(
                       labels[index],
-                      style: TextStyle(color: Colors.black, fontSize: 16.0),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.black, fontSize: 15.0),
                     ),
                   ),
                 ),
@@ -393,48 +393,50 @@ class _HomePageState extends State<HomePage> {
           },
       ),
     ),
-      Container(
-        padding: EdgeInsets.all(20.0),
-        margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: DefaultTextStyle(
-          style: TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          child: AnimatedTextKit(
-            animatedTexts: [
-              ColorizeAnimatedText(
-                'Crafted a Government Exam Prep App, always evolving for aspirants',
-                textStyle: colorizeTextStyle,
-                colors: colorizeColors,
-              ),
-            ],
-            isRepeatingAnimation: true,
-          ),
-        ),
-      )
+      // Container(
+      //   padding: EdgeInsets.all(20.0),
+      //   margin: EdgeInsets.symmetric(horizontal: 30.0, vertical: 15.0),
+      //   decoration: BoxDecoration(
+      //     color: Colors.white,
+      //     borderRadius: BorderRadius.circular(20.0),
+      //     boxShadow: [
+      //       BoxShadow(
+      //         color: Colors.grey.withOpacity(0.5),
+      //         spreadRadius: 2,
+      //         blurRadius: 5,
+      //         offset: Offset(0, 3),
+      //       ),
+      //     ],
+      //   ),
+      //   child: DefaultTextStyle(
+      //     style: TextStyle(
+      //       fontSize: 20.0,
+      //       fontWeight: FontWeight.bold,
+      //       color: Colors.white,
+      //     ),
+      //     child: AnimatedTextKit(
+      //       animatedTexts: [
+      //         ColorizeAnimatedText(
+      //           'Crafted a Government Exam Prep App, always evolving for aspirants',
+      //           textStyle: colorizeTextStyle,
+      //           colors: colorizeColors,
+      //         ),
+      //       ],
+      //       isRepeatingAnimation: true,
+      //     ),
+      //   ),
+      // )
 
         ],
+
         ),
+
         bottomNavigationBar: Container(
 
-          color: Colors.blue, // Set your desired background color here
+          color: Colors.white, // Set your desired background color here
           child: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: Colors.blue, // Set the same color as the container
+              canvasColor: Colors.white, // Set the same color as the container
             ),
 
 
@@ -443,17 +445,17 @@ class _HomePageState extends State<HomePage> {
               type: BottomNavigationBarType.fixed,
               items: const [
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.menu, color: Colors.pinkAccent , size: 40),
+                  icon: Icon(Icons.menu, color: Colors.black , size: 40),
                   label: '',
                 ),
 
 
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.share, color: Colors.redAccent , size: 30,),
+                  icon: Icon(Icons.share, color: Colors.black , size: 30,),
                   label: '',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.connect_without_contact_rounded, color: Colors.pinkAccent , size: 40),
+                  icon: Icon(Icons.connect_without_contact_rounded, color: Colors.black , size: 40),
                   label: '',
                 ),
                 // BottomNavigationBarItem(
@@ -466,7 +468,8 @@ class _HomePageState extends State<HomePage> {
                 if (index == 0) {
                   _showMenu(context);
                 } else if (index == 1) {
-                  _shareApp();
+
+                _shareApp();
                 } else if (index == 2) {
                   _showFeedbackDialog();
                 }
@@ -495,8 +498,8 @@ class _HomePageState extends State<HomePage> {
         titleText = 'हम आपकी प्रतिक्रिया को महत्व देते हैं!';
         feedbackImportance = 'हम अपने एप्लिकेशन को बेहतर बनाने के लिए लगातार काम कर रहे हैं और आपकी प्रतिक्रिया इस प्रक्रिया में महत्वपूर्ण भूमिका निभाती है।';
         feedbackNote = 'यदि आपके पास कोई प्रतिक्रिया, सुझाव या समस्या है, तो कृपया हमसे यहां संपर्क करें:';
-        emailText = 'ईमेल: nagamunireddy1991@gmail.com';
-        phoneText = 'फ़ोन: +918985896540';
+        emailText = 'ईमेल: reddyguru122@gmail.com';
+        phoneText = 'फ़ोन: +917893305330';
         okText = 'ठीक है';
         break;
 
@@ -558,44 +561,44 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         final menuItems = <Widget>[
-          // if (_userIdentifier == null) // Show "Login" only when the user is not logged in
-          //   ListTile(
-          //     leading: Icon(Icons.login),
-          //     title: Text('Create An Account or Login '),
-          //     onTap: () {
-          //       Navigator.pop(context);
-          //       Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-          //     },
-          //   ),
-          // if (_userIdentifier != null) // Show user's identifier when logged in
-          //   ListTile(
-          //     leading: Icon(Icons.person),
-          //     title: Text('User: $_userIdentifier'), // Display the user's identifier here
-          //     onTap: () {
-          //       // Handle tapping on the user's identifier, if needed
-          //       Navigator.pop(context); // Close the bottom sheet
-          //     },
-          //   ),
-          // if (_userIdentifier != null)
-          //   ListTile(
-          //     leading: Icon(Icons.logout),
-          //     title: Text('Sign Out'),
-          //     onTap: () {
-          //       _logout();
-          //       Navigator.pop(context);
-          //       _showMenu(context);
-          //     },
-          //   ),
-          //
-          // if (_userIdentifier != null)
-          //   ListTile(
-          //     leading: Icon(Icons.delete),
-          //     title: Text('Delete Account'),
-          //     onTap: () {
-          //       _showDeleteAccountConfirmation(context);
-          //     },
-          //   ),
-          //
+          if (_userIdentifier == null) // Show "Login" only when the user is not logged in
+            ListTile(
+              leading: Icon(Icons.login),
+              title: Text('Create An Account or Login '),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)));
+              },
+            ),
+          if (_userIdentifier != null) // Show user's identifier when logged in
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('User: $_userIdentifier'), // Display the user's identifier here
+              onTap: () {
+                // Handle tapping on the user's identifier, if needed
+                Navigator.pop(context); // Close the bottom sheet
+              },
+            ),
+          if (_userIdentifier != null)
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Sign Out'),
+              onTap: () {
+                _logout();
+                Navigator.pop(context);
+                _showMenu(context);
+              },
+            ),
+
+          if (_userIdentifier != null)
+            ListTile(
+              leading: Icon(Icons.delete),
+              title: Text('Delete Account'),
+              onTap: () {
+                _showDeleteAccountConfirmation(context);
+              },
+            ),
+
           // ListTile(
           //   leading: Icon(Icons.settings),
           //   title: Text('Settings'),
@@ -606,7 +609,7 @@ class _HomePageState extends State<HomePage> {
           // ),
           ListTile(
             leading: Icon(Icons.rate_review),
-            title: Text('Give Rating On Playstore'),
+            title: Text('Give Rating On Playstore & Update App'),
             onTap: () {
               Navigator.pop(context); // Close the bottom sheet
               _rateUs(); // Open the settings page
@@ -683,6 +686,22 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // Listen to authentication state changes
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
+        // User is signed out, navigate to login screen
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => LoginPage(onLoginSuccess: () {  },),
+        ));
+      } else {
+        // User is signed in, update user email
+        setState(() {
+          _userEmail = user.email;
+        });
+      }
+    });
+
+
     _loadLanguagePreference();
     _loadSavedLanguage();
     _getUserIdentifier(); // Call this method to retrieve user's identifier
@@ -720,6 +739,10 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           _userIdentifier = user.email ?? user.phoneNumber;
         });
+      } else if (user.providerData.any((userInfo) => userInfo.providerId == 'phone')) {
+        setState(() {
+          _userIdentifier = user.phoneNumber;
+        });
       } else if (user.email != null) {
         setState(() {
           _userIdentifier = user.email;
@@ -731,11 +754,11 @@ class _HomePageState extends State<HomePage> {
       }
     }
   }
+
   void _toggleLoggedIn(bool isLoggedIn) {
     setState(() {
-      // Update the state variable that tracks the user's login status
-      // For example:
-      // _isLoggedIn = isLoggedIn;
+
+     // _isLoggedIn = isLoggedIn;
     });
   }
 

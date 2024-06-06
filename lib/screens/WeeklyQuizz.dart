@@ -46,10 +46,10 @@ class MonthList extends StatelessWidget {
           onTap: () {
             if (months[index] == 'October') {
               Navigator.pop(context); // Close the current screen
-              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)));
             } else if (months[index] == 'January') {
               Navigator.pop(context); // Close the current screen
-              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)));
             }
           },
         );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../path_to_my_banner_ad_widget.dart';
 
-void main() {
-  runApp(HeritageSites_india());
-}
+// void main() {
+//   runApp(HeritageSites_india());
+// }
 class HeritageSites_india extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

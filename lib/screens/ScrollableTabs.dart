@@ -9,9 +9,11 @@ import 'PoliceExamsMenu.dart';
 
 class ScrollableTabsScreen extends StatelessWidget {
   final List<String> stateAbbreviations = [
-    'AP', 'TS', 'AS', 'BR', 'CG', 'GA', 'GJ', 'HR', 'HP', 'JK', 'JH', 'KA',
+    "UPSC",'AP', 'TS',
+    'AS', 'BR', 'CG', 'GA', 'GJ', 'HR', 'HP', 'JK', 'JH', 'KA',
     'KL', 'MP', 'MH', 'MN', 'ML', 'MZ', 'NL', 'OR', 'PB', 'RJ', 'SK', 'TN',
     'TR', 'UK', 'UP', 'WB', 'TN', 'TR', 'AN', 'CH', 'DH', 'DD', 'DL', 'LD', 'PY'
+
   ];
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class ScrollableTabsScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Old Question Papers'),
-          backgroundColor: Colors.lightBlue,
+          backgroundColor: Colors.blue,
           bottom: TabBar(
             isScrollable: true,
             labelColor: Colors.red,
@@ -47,260 +49,123 @@ Widget _buildTabContent(BuildContext context, String stateAbbreviation) {
     case 'AP':
       content = Column(
         children: [
+
           ElevatedButton(
             onPressed: () {
-              // Navigate to the Police Exams Menu page
+              // Navigate to the ExamScreen when "Police Exams" button is pressed
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
+                  builder: (context) => Prelims_2023Screen(
+                    userIdentifier: stateAbbreviation,
+                  ),
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
+            child: Text('Test'),
           ),
 
-       ElevatedButton(
-         onPressed: () {
-           // Navigate to the Police Exams Menu page
-           Navigator.of(context).push(
-             MaterialPageRoute(
-               builder: (context) => PoliceExamsMenu(),
-             ),
-           );
-         },
-         style: ElevatedButton.styleFrom(
-           primary: Colors.red, // Set the background color to red
-         ),
+          ElevatedButton(
+            onPressed: () {
+              // Show a full-screen menu when "Police Exams" button is tapped
+              showMenu(
+                context: context,
+                position: RelativeRect.fill,
+                items: [
+                  PopupMenuItem(
+                    child: Text('Option 1'),
+                    onTap: () {
+                      // Handle Option 1
+                      print('Option 1 selected for $stateAbbreviation');
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Text('Option 2'),
+                    onTap: () {
+                      // Handle Option 2
+                      print('Option 2 selected for $stateAbbreviation');
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Text('Option 3'),
+                    onTap: () {
+                      // Handle Option 3
+                      print('Option 3 selected for $stateAbbreviation');
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Text('Option 4'),
+                    onTap: () {
+                      // Handle Option 4
+                      print('Option 4 selected for $stateAbbreviation');
+                    },
+                  ),
+                ],
+              );
+            },
+            child: Text('Police Exams'),
+          ),
 
-         child:Align(
-         alignment: Alignment.centerLeft, // Align the text to the left
-        child: Text('AP Police SI (Prelims & Mains) Exam Old question Papers '),
-            ),
-       ),
-      ElevatedButton(
-        onPressed: () {
-          // Navigate to the Police Exams Menu page
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => Group1ExamsMenu(),
-            ),
-          );
-        },
-        child: Align(
-          alignment: Alignment.centerLeft, // Align the text to the left
-        child : Text('Group1Exams '),
-      ),
-      ),
-      ElevatedButton(
-        onPressed: () {
-          // Navigate to the Police Exams Menu page
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => Group2ExamsMenu(),
-            ),
-          );
-        },
-        child: Align(
-          alignment: Alignment.bottomLeft,
-        child: Text('Group2Exams '),
-      ),
-      ),
-      ElevatedButton(
-        onPressed: () {
-          // Navigate to the ExamScreen when "Police Exams" button is pressed
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => Prelims_2023Screen(
-                userIdentifier: stateAbbreviation,
-              ),
-            ),
-          );
-        },
-        child: Text('Test'),
-      ),
+          ElevatedButton(
+            onPressed: () {
+              // Handle Group Exams button tap
+              print('Group Exams button tapped for $stateAbbreviation');
+            },
+            child: Text('Group Exams'),
+          ),
 
+          ElevatedButton(
+            onPressed: () {
+              // Handle Police Exams button tap
+              print('Police Exams button tapped for $stateAbbreviation');
+            },
+            child: Text('Police Exams'),
+          ),
 
-      ElevatedButton(
-        onPressed: () {
-          // Show a full-screen menu when "Police Exams" button is tapped
-          showMenu(
-            context: context,
-            position: RelativeRect.fill,
-            items: [
-              PopupMenuItem(
-                child: Text('Option 1'),
-                onTap: () {
-                  // Handle Option 1
-                  print('Option 1 selected for $stateAbbreviation');
-                },
-              ),
-              PopupMenuItem(
-                child: Text('Option 2'),
-                onTap: () {
-                  // Handle Option 2
-                  print('Option 2 selected for $stateAbbreviation');
-                },
-              ),
-              PopupMenuItem(
-                child: Text('Option 3'),
-                onTap: () {
-                  // Handle Option 3
-                  print('Option 3 selected for $stateAbbreviation');
-                },
-              ),
-              PopupMenuItem(
-                child: Text('Option 4'),
-                onTap: () {
-                  // Handle Option 4
-                  print('Option 4 selected for $stateAbbreviation');
-                },
-              ),
-            ],
-          );
-        },
-        child: Text('Police Exams'),
-      ),
-
-
-
-      ElevatedButton(
-              onPressed: () {
-                // Handle Group Exams button tap
-                print('Group Exams button tapped for $stateAbbreviation');
-              },
-              child: Text('Group Exams'),
-            ),
-     ElevatedButton(
-              onPressed: () {
-                // Handle Police Exams button tap
-                print('Police Exams button tapped for $stateAbbreviation');
-              },
-              child: Text('Police Exams'),
-            ),
-      ElevatedButton(
-        onPressed: () {
-          // Show a menu when "Police Exams" button is tapped
-          showMenu(
-            context: context,
-            position: RelativeRect.fill,
-            items: [
-              PopupMenuItem(
-                child: Text('Option 1'),
-                onTap: () {
-                  // Handle Option 1
-                  print('Option 1 selected for $stateAbbreviation');
-                },
-              ),
-              PopupMenuItem(
-                child: Text('Option 2'),
-                onTap: () {
-                  // Handle Option 2
-                  print('Option 2 selected for $stateAbbreviation');
-                },
-              ),
-              PopupMenuItem(
-                child: Text('Option 3'),
-                onTap: () {
-                  // Handle Option 3
-                  print('Option 3 selected for $stateAbbreviation');
-                },
-              ),
-              PopupMenuItem(
-                child: Text('Option 4'),
-                onTap: () {
-                  // Handle Option 4
-                  print('Option 4 selected for $stateAbbreviation');
-                },
-              ),
-            ],
-          );
-        },
-        child: Text('Police Exams'),
-      ),
-
-
-      ElevatedButton(
-        onPressed: () {
-          // Handle Question Paper 1 button tap
-          print('Question Paper 1 tapped for $stateAbbreviation');
-        },
-        child: Text('Question Paper 1'),
-      ),
-
-
-      ElevatedButton(
-        onPressed: () {
-          // Handle Question Paper 2 button tap
-          print('Question Paper 2 tapped for $stateAbbreviation');
-        },
-        child: Text('Question Paper 2'),
-      ),
-
-      ElevatedButton(
-        onPressed: () {
-          // Handle Group Exams button tap
-          print('Group Exams button tapped for $stateAbbreviation');
-        },
-        child: Text('Group Exams'),
-      ),
-      ElevatedButton(
-        onPressed: () {
-          // Handle Police Exams button tap
-          print('Police Exams button tapped for $stateAbbreviation');
-        },
-        child: Text('Police Exams'),
-      ),
-      ElevatedButton(
-        onPressed: () {
-          // Handle Police Exams button tap
-          print('Police Exams button tapped for $stateAbbreviation');
-        },
-        child: Text('Police Exams'),
-      ),
-
-      ElevatedButton(
-        onPressed: () {
-          // Handle Question Paper 1 button tap
-          print('Question Paper 1 tapped for $stateAbbreviation');
-        },
-        child: Text('Question Paper 1'),
-      ),
-
-
-      ElevatedButton(
-        onPressed: () {
-          // Handle Question Paper 2 button tap
-          print('Question Paper 2 tapped for $stateAbbreviation');
-        },
-        child: Text('Question Paper 2'),
-      ),
-
-      ElevatedButton(
-        onPressed: () {
-          // Handle Group Exams button tap
-          print('Group Exams button tapped for $stateAbbreviation');
-        },
-        child: Text('Group Exams'),
-      ),
-      ElevatedButton(
-        onPressed: () {
-          // Handle Police Exams button tap
-          print('Police Exams button tapped for $stateAbbreviation');
-        },
-        child: Text('Police Exams'),
-      ),
-
-
-    ],
-  );
+          ElevatedButton(
+            onPressed: () {
+              // Show a menu when "Police Exams" button is tapped
+              showMenu(
+                context: context,
+                position: RelativeRect.fill,
+                items: [
+                  PopupMenuItem(
+                    child: Text('Option 1'),
+                    onTap: () {
+                      // Handle Option 1
+                      print('Option 1 selected for $stateAbbreviation');
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Text('Option 2'),
+                    onTap: () {
+                      // Handle Option 2
+                      print('Option 2 selected for $stateAbbreviation');
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Text('Option 3'),
+                    onTap: () {
+                      // Handle Option 3
+                      print('Option 3 selected for $stateAbbreviation');
+                    },
+                  ),
+                  PopupMenuItem(
+                    child: Text('Option 4'),
+                    onTap: () {
+                      // Handle Option 4
+                      print('Option 4 selected for $stateAbbreviation');
+                    },
+                  ),
+                ],
+              );
+            },
+            child: Text('Police Exams'),
+          ),
+        ],
+      );
       break;
-    // case 'TS':
+
+  // case 'TS':
     //   content = Column(
     //     children: [
     //       // Add content specific to 'AR' here
@@ -320,7 +185,7 @@ Widget _buildTabContent(BuildContext context, String stateAbbreviation) {
               );
             },
             style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
+              backgroundColor: Colors.red, // Set the background color to red
             ),
             child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
           ),
@@ -335,7 +200,7 @@ Widget _buildTabContent(BuildContext context, String stateAbbreviation) {
               );
             },
             style: ElevatedButton.styleFrom(
-              primary: Colors.orange, // Set the background color to red
+              backgroundColor: Colors.orange, // Set the background color to red
             ),
             child: Align(
               alignment: Alignment.centerLeft, // Align the text to the left
@@ -351,237 +216,13 @@ Widget _buildTabContent(BuildContext context, String stateAbbreviation) {
               );
             },
             style: ElevatedButton.styleFrom(
-              primary: Colors.orange, // Set the background color to red
+              backgroundColor: Colors.orange, // Set the background color to red
             ),
             child: Align(
               alignment: Alignment.centerLeft, // Align the text to the left
               child: Text('TS Police SI '),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.orange, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI '),
-            ),
-          ),ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.orange, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI '),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.orange, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI '),
-            ),
-          ),ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.orange, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI '),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to the Police Exams Menu page
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => PoliceExamsMenu(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              primary: Colors.red, // Set the background color to red
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft, // Align the text to the left
-              child: Text('TS Police SI (Prelims & Mains) Exam Old question Papers'),
-            ),
-          ),
-
-
-
-
-
 
 
           ElevatedButton(

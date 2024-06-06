@@ -156,7 +156,7 @@ void _handleAddPostQuestion(BuildContext context) {
   if (user == null) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
+      MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)),
     );
   } else {
     Navigator.push(

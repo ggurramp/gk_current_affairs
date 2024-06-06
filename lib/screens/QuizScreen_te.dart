@@ -1,6 +1,7 @@
 //guru// Dart imports
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gk_current_affairs/screens/HomePage.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,34 +22,48 @@ import 'package:gk_current_affairs/screens/SettingsPage.dart';
 import 'package:gk_current_affairs/screens/StateExamsPage.dart';
 
 
+import '../admob/MyInterstitialAdWidget.dart';
+import '../admob/MyNativeAdWidget.dart';
 import '../path_to_my_banner_ad_widget.dart';
 import 'favorite_questions_screen_te.dart';
 import 'gmail_login_page.dart';
 import 'ExplanationPage.dart';
 
 class QuizScreen_te extends StatefulWidget {
+  final String questionIndex;
+  final Key? key;  // Add this line to include the key parameter
+  QuizScreen_te({required this.questionIndex, this.questionId,  this.key, this.userIdentifier});
+
+  // Add the 'questionId' property
+  final String? questionId;
   final String? userIdentifier; // Add this line
-  QuizScreen_te({Key? key, this.userIdentifier}) : super(key: key);
+ // QuizScreen_te({Key? key, this.userIdentifier,}) : super(key: key);
   @override
   State<QuizScreen_te> createState() => _QuizScreen_teState();
 }
 class _QuizScreen_teState extends State<QuizScreen_te> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  TextEditingController questionController = TextEditingController();
+  TextEditingController answerController = TextEditingController();
+  TextEditingController correctAnswerController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController explanationController = TextEditingController();
+  String? selectedCategory;
+  String _formattedTimestamp = DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.now());
 
+  String? _currentQuestionId;
   final VerticalDragGestureRecognizer _gestureRecognizer =
   VerticalDragGestureRecognizer();
   String? _userIdentifier;
   int? _selectedAnswerIndex;
   int _currentQuestionIndex = 0;
   BannerAd? _bannerAd;
-
-
-
-  // int _correctAttempts = 0;
-  // int _totalAttempted = 0;
-  // List<int> _attemptedQuestions = [];
+  List<String> _formattedTimestamps = []; // Changed to a list
   List<int> _favoriteQuestions = [];
-  List<String> _formattedTimestamp = [];
+
+
+  String? questionId;
+
 
 
   bool _isQuestionFavorite(int questionIndex) {
@@ -70,7 +85,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
   @override
   void initState() {
     super.initState();
-
+    _currentQuestionId = widget.questionId;
     //fetchAndSetQuestions();
     _requestNotificationPermission();
     //_gestureRecognizer.onEnd = _onSwipe;
@@ -212,6 +227,151 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
     await docRef.update({'comments': FieldValue.arrayUnion(["Static comment for the example"])});
   }
 
+
+  void _postQuestion() {
+    // Get the values entered in the text fields
+    String question = questionController.text.trim();
+    String answers = answerController.text.trim();
+    String correctAnswerIndexText = correctAnswerController.text.trim();
+    String explanation = explanationController.text.trim();
+    String category = selectedCategory ?? ''; // Get the selected category value
+
+    // Check if any field is empty
+    if (question.isEmpty ||
+        answers.isEmpty ||
+        correctAnswerIndexText.isEmpty ||
+        explanation.isEmpty ||
+        category.isEmpty) {
+      // Display specific error message for empty fields
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('All fields are mandatory'),
+        ),
+      );
+      return; // Exit function if any field is empty
+    }
+
+    // Convert correctAnswerIndex to int
+    int correctAnswerIndex = int.tryParse(correctAnswerIndexText) ?? 0;
+
+    // Split the answers string into a list of answers
+    List<String> answerList = answers.split(',');
+
+    // Write the data to Firestore
+    FirebaseFirestore.instance.collection('questions_te').add({
+      'question': question,
+      'answers': answerList,
+      'correctAnswerIndex': correctAnswerIndex,
+      'explanation': explanation,
+      'category': category,
+      'timestamp': Timestamp.now(), // Set the timestamp to the current time
+    }).then((value) {
+      // If the data is successfully written to Firestore, clear the text fields
+      questionController.clear();
+      answerController.clear();
+      correctAnswerController.clear();
+      explanationController.clear();
+      categoryController.clear(); // Clear the category field
+      // Close the alert dialog
+      Navigator.pop(context);
+      // Show a snackbar to indicate successful posting
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Question posted successfully'),
+      ));
+    }).catchError((error) {
+      // If an error occurs while writing to Firestore, display an error message
+      print('Error posting question: $error');
+      // Optionally, you can show a toast or snackbar to indicate the error
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('An error occurred while posting the question'),
+      ));
+    });
+  }
+
+
+
+  void _openInputDialog() {
+    List<String> categories = ['పాలిటి', 'ఆర్థిక వ్యవస్థ', 'చరిత్ర', 'భూగోళశాస్త్రం', 'అంతర్జాతీయ సంబంధాలు', 'సైన్స్ & టెక్నాలజీ', 'అవార్డులు', 'పర్యావరణం', 'క్రీడలు', 'అపాయింట్‌మెంట్‌లు', 'ముఖ్యమైన తేదీలు',' రాష్ట్ర వార్తలు','పథకాలు', 'సమాజం', 'సంఘటనలు', 'సమావేశాలు', 'ఇతరులు'];
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: EdgeInsets.all(0),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Post Question', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: questionController,
+                    decoration: InputDecoration(labelText: 'Question'),
+                  ),
+                  TextField(
+                    controller: answerController,
+                    decoration: InputDecoration(labelText: 'Answers (Comma separated)'),
+                  ),
+                  TextField(
+                    controller: correctAnswerController,
+                    decoration: InputDecoration(
+                      labelText: 'Correct Answer Index',
+                      hintText: '0 = A, 1 = B, 2 = C, 3 = D, 4 = E',
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [CorrectAnswerInputFormatter()],
+                  ),
+
+
+
+                  DropdownButtonFormField(
+                    value: selectedCategory, // Provide a default value if needed
+                    items: categories.map((String category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(category),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedCategory = newValue!;
+                      });
+                    },
+                    decoration: InputDecoration(labelText: 'Category'),
+                  ),
+                  TextField(
+                    controller: explanationController,
+                    decoration: InputDecoration(labelText: 'Explanation'),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text('Cancel'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _postQuestion,
+                        child: Text('Post'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
   void _showCategoryModal(List<String> categories) {
     showModalBottomSheet(
       context: context,
@@ -221,8 +381,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
           heightFactor: 0.8,
           child: SingleChildScrollView(
             child: Column(
-              children: categories.map((category) {
-                return ListTile(
+              children: categories.map((category) {return ListTile(
                     title: Text(category),
                     onTap: () async {
                       Navigator.pop(context);
@@ -321,7 +480,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
       _correctAnswers = questions_teData.map((data) => data['correctAnswerIndex'] as int).toList();
       _explanations = questions_teData.map((data) => data['explanation'] as String).toList();
 
-      _formattedTimestamp = questions_teData.map((data) {
+      _formattedTimestamps = questions_teData.map((data) {
         final timestamp = data['timestamp'] as Timestamp?;
         if (timestamp != null) {
           return DateFormat('dd-MM-yyyy').format(timestamp.toDate());
@@ -383,6 +542,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
 
     return timestamps;
   }
+
   void _getUserIdentifier() {
     // Retrieve the user's identifier (e.g., email) from Firebase authentication
     final User? user = FirebaseAuth.instance.currentUser;
@@ -533,12 +693,24 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
                   onTap: () {
                     _showExplanation(); // Show explanation on a new page
                   },
-                  child: Text(
-                    'Click Here For Explanation',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 4.0,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)), // Use BorderRadius.all for a rounded rectangle
+                      color: Colors.pink[100],
+                    ),
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Explanation',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green[900],
+                      ),
                     ),
                   ),
                 ),
@@ -559,7 +731,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
         _currentQuestionIndex >= _answers.length ||
         _currentQuestionIndex >= _correctAnswers.length ||
         _currentQuestionIndex >= _explanations.length ||
-        _currentQuestionIndex >= _formattedTimestamp.length) {
+        _currentQuestionIndex >= _formattedTimestamps.length) {
 
       // Reset _currentQuestionIndex to a safe value, like 0
       _currentQuestionIndex = 0;
@@ -583,7 +755,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
                   },
                 ),
                 Text(
-                  'Current Affairs', // Text to be placed after the menu icon
+                  'Daily Current Affairs Quizzes', // Text to be placed after the menu icon
                   style: TextStyle(
                     fontSize: 18, // Customize the font size as needed
                     color: Colors.white, // Customize the text color as needed
@@ -644,7 +816,11 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
           //gurumohan 10/01/2023
           child: Stack(
             children: [
-
+           //   MyNativeAdWidget(adUnitId: 'ca-app-pub-8650911541008756/3458304135'),
+              MyInterstitialAdWidget(
+                adUnitId: 'ca-app-pub-8650911541008756/7410489682',
+                // Provide your interstitial ad unit ID here
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0), // Add padding to all four sides
                 child: Container(
@@ -682,7 +858,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
                               children: [
 
                                 Text(
-                                  '[ ${_formattedTimestamp[_currentQuestionIndex]} ] ',
+                                  '[ ${_formattedTimestamps[_currentQuestionIndex]} ] ',
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.deepPurple,
@@ -699,7 +875,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
                                       List<String> categories = await fetchCategoriesFromFirestore();
                                       _showCategoryModal(categories);
                                     },
-                                    child: Text("Show Categories")
+                                    child: Text("Categories")
                                 ),
 
 
@@ -793,8 +969,15 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
           ),
 
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _openInputDialog,
+          tooltip: 'Add Question',
+          child: Icon(Icons.add),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
         bottomNavigationBar: Container(
-          color: Colors.red[400], // Set your desired background color here
+          color: Colors.white, // Set your desired background color here
           child: Theme(
             data: Theme.of(context).copyWith(
               canvasColor: Colors.white70, // Set the same color as the container
@@ -810,19 +993,19 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
                 //   label: '',
                 // ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.arrow_back, color: Colors.red, size: 40),
+                  icon: Icon(Icons.arrow_back, color: Colors.blue, size: 40),
                   label: '',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.share, color: Colors.red , size: 20,),
+                  icon: Icon(Icons.share, color: Colors.blue , size: 20,),
                   label: 'share',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.refresh, color: Colors.red , size: 35),
+                  icon: Icon(Icons.refresh, color: Colors.blue , size: 35),
                   label: '',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.arrow_forward_rounded, color: Colors.red , size: 40),
+                  icon: Icon(Icons.arrow_forward_rounded, color: Colors.blue , size: 40),
                   label: '',
                 ),
 
@@ -879,7 +1062,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
     );
 
     if (selectedTimestamp != null) {
-      final int selectedTimestampIndex = _formattedTimestamp.indexOf(selectedTimestamp);
+      final int selectedTimestampIndex = _formattedTimestamps.indexOf(selectedTimestamp);
       if (selectedTimestampIndex != -1) {
         setState(() {
           _currentQuestionIndex = selectedTimestampIndex; // Update the current question index
@@ -904,7 +1087,7 @@ class _QuizScreen_teState extends State<QuizScreen_te> {
               title: Text('Create An Account or Login '),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)));
               },
             ),
           if (_userIdentifier != null) // Show user's identifier when logged in
@@ -1142,5 +1325,19 @@ class _ExplanationDropdownState extends State<ExplanationDropdown> {
       ),
       subtitle: _isExpanded ? Text(widget.explanation, style: TextStyle(color: Colors.blue)) : null,
     );
+  }
+}
+
+class CorrectAnswerInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final int? parsed = int.tryParse(newValue.text);
+
+    if (parsed != null && newValue.text.length <= 1 && parsed >= 0 && parsed <= 5) {
+      return newValue;
+    }
+    // Return empty value if the input is invalid
+    return TextEditingValue.empty;
   }
 }

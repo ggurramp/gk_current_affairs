@@ -114,7 +114,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       // Navigate to the login page
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        MaterialPageRoute(builder: (context) => LoginPage(onLoginSuccess: () {  },)),
                       );
                     } catch (e) {
                       // Error occurred while creating user

@@ -63,6 +63,7 @@ import 'package:gk_current_affairs/subjectWiseBits/vbr_te.dart';
 import 'package:gk_current_affairs/subjectWiseBits/vicepresident_te.dart';
 import 'package:gk_current_affairs/subjectWiseBits/wcstrctn.dart';
 import 'package:gk_current_affairs/subjectWiseBits/wcstrctn_te.dart';
+import '../admob/MyInterstitialAdWidget.dart';
 import '../subjectWiseBits/amendement11_te.dart';
 import '../subjectWiseBits/ancientHistory_1_te.dart';
 import '../subjectWiseBits/basicstructure12_te.dart';
@@ -109,6 +110,9 @@ class SubjectsList_te extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.all(16.0),
           children: [
+            MyInterstitialAdWidget(
+              adUnitId: 'ca-app-pub-8650911541008756/7410489682', // Provide your interstitial ad unit ID here
+            ),
             // SubjectTile(
             //   subject: 'ఆర్థిక వ్యవస్థ',
             //   subTopics: [

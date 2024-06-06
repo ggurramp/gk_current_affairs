@@ -5,22 +5,23 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../admob/MyInterstitialAdWidget.dart';
 import '../path_to_my_banner_ad_widget.dart';
 import 'HomePage.dart';
 import 'QuizScreen.dart';
 
-void main() {
-  runApp(CurrentAffairsApp_te());
-}
-
-class CurrentAffairsApp_te extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CurrentAffairsScreen_te(),
-    );
-  }
-}
+// void main() {
+//   runApp(CurrentAffairsApp_te());
+// }
+//
+// class CurrentAffairsApp_te extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: CurrentAffairsScreen_te(),
+//     );
+//   }
+// }
 
 class CurrentAffairsScreen_te extends StatefulWidget {
   @override
@@ -58,12 +59,14 @@ class _CurrentAffairsScreen_teState extends State<CurrentAffairsScreen_te> {
     // Load the banner ad
     _loadBannerAd();
   }
+
   @override
   void dispose() {
     // Dispose of the banner ad when the screen is disposed
     _bannerAd?.dispose();
     super.dispose();
   }
+
   void _loadBannerAd() {
     _bannerAd = BannerAd(
       adUnitId: 'ca-app-pub-8650911541008756/4254521923', // Replace with your actual banner ad unit ID
@@ -82,6 +85,7 @@ class _CurrentAffairsScreen_teState extends State<CurrentAffairsScreen_te> {
     // Load the ad
     _bannerAd?.load();
   }
+
   void _initSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
   }
@@ -151,7 +155,6 @@ class _CurrentAffairsScreen_teState extends State<CurrentAffairsScreen_te> {
       favoriteArticles = storedFavorites.map((article) => newsArticles.indexOf(article)).toSet();
     });
   }
-
 
   Future<List<Map<String, dynamic>>> fetchCurrent_affairs_teFromFirestoreByCategory([String? category]) async {
     final firestore = FirebaseFirestore.instance;
@@ -276,11 +279,11 @@ class _CurrentAffairsScreen_teState extends State<CurrentAffairsScreen_te> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -311,6 +314,10 @@ class _CurrentAffairsScreen_teState extends State<CurrentAffairsScreen_te> {
                   color: Colors.deepPurple,
                   size: 40,
                 ),
+                MyInterstitialAdWidget(
+                  adUnitId: 'ca-app-pub-8650911541008756/7410489682',
+                  // Provide your interstitial ad unit ID here
+                ),
               ],
             ),
           ),
@@ -322,7 +329,7 @@ class _CurrentAffairsScreen_teState extends State<CurrentAffairsScreen_te> {
                 _showCategoryModal(categories);
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.green,
+                backgroundColor: Colors.green, // Set the button's background color
               ),
               child: Text(
                 "Topic \n Wise",
@@ -360,194 +367,140 @@ class _CurrentAffairsScreen_teState extends State<CurrentAffairsScreen_te> {
       body: Column(
         children: [
           Expanded(
-            child: PageView.builder(
-              controller: PageController(),
-              itemCount: newsArticles.length,
+            child: ListView.builder(
+              itemCount: titles.length,
               itemBuilder: (context, index) {
-                return SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.0),
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (imageUrls[index] != null)
-                            Container(
-                              height: 200,
-                              width: double.infinity,
-                              child: CachedNetworkImage(
-                                imageUrl: imageUrls[index]!,
-                                placeholder: (context, url) => SizedBox(
-                                  width: double.infinity,
-                                  height: 200,
-                                  child: Stack(
-                                    children: [
-                                      Container(
-                                        width: double.infinity * 0.33,
-                                        color: Colors.blue,
-                                      ),
-                                      Container(
-                                        width: double.infinity * 0.33,
-                                        color: Colors.green,
-                                      ),
-                                      Container(
-                                        width: double.infinity * 0.34,
-                                        color: Colors.orange,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) => Icon(Icons.error),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ListTile(
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  titles[index] ?? '',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8.0),
-                                Text(
-                                  newsArticles[index] ?? '',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15.0,
-                                  ),
-                                ),
-                                MyBannerAdWidget(), // Add the banner ad here
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        //_showPreviousDates();
-                                      },
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Text(
-                                            '[ ${_formattedTimestamp[index]} ] ',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colors.deepPurple,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: favoriteArticles.contains(index)
-                                          ? Icon(Icons.favorite, color: Colors.red)
-                                          : Icon(Icons.favorite_border),
-                                      onPressed: () {
-                                        setState(() {
-                                          if (index < newsArticles.length) {
-                                            if (favoriteArticles.contains(index)) {
-                                              favoriteArticles.remove(index);
-                                            } else {
-                                              favoriteArticles.add(index);
-                                            }
-                                            _saveFavorites();
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                return Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey), // Add border to the container
+                    borderRadius: BorderRadius.circular(8.0), // Add border radius for rounded corners
+                    // You can add more styling properties as needed
+                  ),
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Add margin around each container
+                  child: ListTile(
+                    title: Text(titles[index] ?? ''),
+                    onTap: () {
+                      // Handle tap, navigate to article details screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ArticleDetailsScreen(
+                            title: titles[index] ?? '',
+                            content: newsArticles[index] ?? '',
+                            imageUrl: imageUrls[index],
+                            timestamp: _formattedTimestamp[index] ?? '',
                           ),
-                          SizedBox(height: 8.0),
-                          Divider(),
-                        ],
-                      ),
+                        ),
+                      );
+                    },
+                    trailing: IconButton(
+                      icon: favoriteArticles.contains(index)
+                          ? Icon(Icons.favorite, color: Colors.red)
+                          : Icon(Icons.favorite_border),
+                      onPressed: () {
+                        setState(() {
+                          if (favoriteArticles.contains(index)) {
+                            favoriteArticles.remove(index);
+                          } else {
+                            favoriteArticles.add(index);
+                          }
+                          _saveFavorites();
+                        });
+                      },
                     ),
                   ),
                 );
               },
             ),
           ),
-          if (_bannerAd != null)
-            Container(
-              height: MediaQuery.of(context).size.height * 0.1, // Adjust the multiplier as needed
-              child: AdWidget(ad: _bannerAd!),
-            ),
+          MyBannerAdWidget(),
 
         ],
+      ),
+
+
+    );
+  }
+}
+
+class ArticleDetailsScreen extends StatelessWidget {
+  final String title;
+  final String content;
+  final String? imageUrl;
+  final String timestamp;
+
+  ArticleDetailsScreen({
+    required this.title,
+    required this.content,
+    required this.timestamp,
+    this.imageUrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+
+        title: Text(title),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (imageUrl != null)
+              Container(
+                height: 200,
+                width: double.infinity,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl!,
+                  placeholder: (context, url) => SizedBox(
+                    width: double.infinity,
+                    height: 200,
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: double.infinity * 0.33,
+                          color: Colors.blue,
+                        ),
+                        Container(
+                          width: double.infinity * 0.33,
+                          color: Colors.green,
+                        ),
+                        Container(
+                          width: double.infinity * 0.34,
+                          color: Colors.orange,
+                        ),
+                      ],
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                content,
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Timestamp: $timestamp',
+                style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+              ),
+            ),
+            MyInterstitialAdWidget(
+              adUnitId: 'ca-app-pub-8650911541008756/7410489682',
+              // Provide your interstitial ad unit ID here
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-
-class ExpandableDropdown extends StatefulWidget {
-  final String article;
-
-  ExpandableDropdown({required this.article});
-
-  @override
-  _ExpandableDropdownState createState() => _ExpandableDropdownState();
-}
-
-class _ExpandableDropdownState extends State<ExpandableDropdown> {
-  bool isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        ListTile(
-          title: Text(
-            widget.article.length > 120
-                ? widget.article.substring(0, 120)
-                : widget.article,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: IconButton(
-            icon: Icon(
-              isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-              color: Colors.pink,
-              size: 40,
-            ),
-            onPressed: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-          ),
-        ),
-        if (isExpanded)
-          Padding(
-            padding: EdgeInsets.only(left: 4.0, right: 4.0),
-            child: Text(
-              widget.article,
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.black,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-
 
 class FavoritesScreen_te extends StatelessWidget {
   final List<String> favoriteArticles_te;
@@ -598,6 +551,7 @@ class FavoritesScreen_te extends StatelessWidget {
     );
   }
 }
+
 class ArticleSearch extends SearchDelegate<String> {
   final List<String> allArticles;
 
@@ -610,202 +564,95 @@ class ArticleSearch extends SearchDelegate<String> {
         icon: Icon(Icons.clear),
         onPressed: () {
           query = '';
-          showSuggestions(context);
         },
-      ),
+      )
     ];
   }
 
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: AnimatedIcon(
-        icon: AnimatedIcons.menu_arrow,
-        progress: transitionAnimation,
-      ),
+      icon: Icon(Icons.arrow_back),
       onPressed: () {
-        close(context, "");
+        close(context, '');
       },
     );
   }
 
   @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestionList = query.isEmpty
-        ? allArticles
-        : allArticles
-        .where((article) => article.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
+  Widget buildResults(BuildContext context) {
+    final List<String> results = allArticles.where((article) => article.toLowerCase().contains(query.toLowerCase())).toList();
     return ListView.builder(
-      itemCount: suggestionList.length,
+      itemCount: results.length,
       itemBuilder: (context, index) => ListTile(
-        title: _buildBoldFirstLineText(suggestionList[index]),
+        title: Text(results[index]),
+        onTap: () {
+          close(context, results[index]);
+        },
       ),
     );
   }
 
   @override
-  Widget buildResults(BuildContext context) {
-    final suggestionList = allArticles
-        .where((article) => article.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-
+  Widget buildSuggestions(BuildContext context) {
+    final List<String> suggestionList = query.isEmpty
+        ? []
+        : allArticles.where((article) => article.toLowerCase().contains(query.toLowerCase())).toList();
     return ListView.builder(
       itemCount: suggestionList.length,
       itemBuilder: (context, index) => ListTile(
-        title: _buildBoldFirstLineText(suggestionList[index]),
-      ),
-    );
-  }
-
-  Widget _buildBoldFirstLineText(String article) {
-    final int cutOff = article.indexOf(' ', 50) + 1; // Cut off after the first 50 characters or the next space
-    return RichText(
-      text: TextSpan(
-        style: TextStyle(color: Colors.black),
-        children: [
-          TextSpan(text: article.substring(0, cutOff), style: TextStyle(fontWeight: FontWeight.bold)),
-          TextSpan(text: article.substring(cutOff))
-        ],
+        title: Text(suggestionList[index]),
+        onTap: () {
+          query = suggestionList[index];
+          showResults(context);
+        },
       ),
     );
   }
 }
 
+class DateDetailPage extends StatelessWidget {
+  final List<String> articles;
+  final String selectedDate;
 
-
-
-class CategoryDetailScreen extends StatelessWidget {
-  final List<String> article;
-  final List<String> timestamp;
-
-  CategoryDetailScreen({
-    required this.article,
-    required this.timestamp,
-  });
+  DateDetailPage({required this.articles, required this.selectedDate});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Articles by Category")),
+      appBar: AppBar(
+        title: Text(selectedDate),
+      ),
       body: ListView.builder(
-        itemCount: article.length,
+        itemCount: articles.length,
         itemBuilder: (context, index) {
-          return Card(
-            elevation: 2,
-            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: ExpansionTile(
-              title: Text(
-                article[index],
-                maxLines: 1, // Show only one line when collapsed
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
-              ),
-              children: [
-                MyBannerAdWidget(), // Add the banner ad here
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    article[index],
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    timestamp[index],
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          return ListTile(
+            title: Text(articles[index]),
           );
         },
       ),
     );
   }
 }
-class DateDetailPage extends StatefulWidget {
-  final List<String> articles;
-  final String selectedDate;
 
-  DateDetailPage({
-    required this.articles,
-    required this.selectedDate,
+class CategoryDetailScreen extends StatelessWidget {
+  final List<String> article;
+  final List<String> timestamp;
 
-  });
-
-  @override
-  _DateDetailPageState createState() => _DateDetailPageState();
-}
-
-class _DateDetailPageState extends State<DateDetailPage> {
-  late List<bool> expansionStates;
-
-  @override
-  void initState() {
-    super.initState();
-    expansionStates = List<bool>.filled(widget.articles.length, false);
-  }
+  CategoryDetailScreen({required this.article, required this.timestamp});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("News for ${widget.selectedDate}"),
+        title: Text('Category Detail'),
       ),
       body: ListView.builder(
-        itemCount: widget.articles.length,
+        itemCount: article.length,
         itemBuilder: (context, index) {
-          final article = widget.articles[index];
-          return Card(
-            elevation: 2,
-            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    expansionStates[index]
-                        ? article
-                        : article.split('\n').take(2).join('\n'), // Show first 2 lines only
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                    maxLines: expansionStates[index] ? null : 2,
-                    overflow: expansionStates[index] ? TextOverflow.visible : TextOverflow.ellipsis,
-                  ),
-                  if (article.split('\n').length > 2)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            expansionStates[index] = !expansionStates[index];
-                          });
-                        },
-                        child: Icon(
-                          expansionStates[index]
-                              ? Icons.arrow_drop_up // Show upwards arrow when expanded
-                              : Icons.arrow_drop_down, // Dropdown arrow when collapsed
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+          return ListTile(
+            title: Text(article[index]),
+            subtitle: Text(timestamp[index]),
           );
         },
       ),

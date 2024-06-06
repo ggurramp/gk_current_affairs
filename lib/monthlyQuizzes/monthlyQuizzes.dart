@@ -49,6 +49,7 @@ class MonthlyQuizzes extends StatelessWidget {
         itemCount: months.length,
         itemBuilder: (context, index) {
           return GestureDetector(
+
             onTap: () {
               // Navigate to specific quiz page based on the selected month
               switch (months[index]) {
@@ -118,6 +119,7 @@ class MonthlyQuizzes extends StatelessWidget {
                   break;
               // Add cases for other months if needed
               }
+
             },
             child: Container(
               margin: EdgeInsets.all(8.0),

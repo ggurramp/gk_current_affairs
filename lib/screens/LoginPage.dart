@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gk_current_affairs/screens/phone_login_page.dart';
 import 'ForgotPasswordPage.dart';
 import 'HomePage.dart';
 import 'SignUpPage.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import SharedPreferences
+
+void main() {
+  runApp(MaterialApp(
+    home: LoginPage(onLoginSuccess: () {}),
+    routes: {
+      '/signup': (context) => SignUpPage(),
+      '/home': (context) => HomePage(),
+    },
+  ));
+}
 
 class LoginPage extends StatefulWidget {
+  final Function() onLoginSuccess;
+
+  LoginPage({required this.onLoginSuccess});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _showPassword = false;
@@ -60,6 +77,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text('Login'),
         actions: <Widget>[],
       ),
@@ -113,6 +131,10 @@ class _LoginPageState extends State<LoginPage> {
                           password: enteredPassword,
                         );
 
+                        // Set login state to true and save it in SharedPreferences
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        await prefs.setBool('isLoggedIn', true);
+
                         _toggleLoggedIn(true);
                         _getUserIdentifier();
 
@@ -154,6 +176,11 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                   onPressed: () async {
                     await _auth.signOut();
+
+                    // Set login state to false and save it in SharedPreferences
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('isLoggedIn', false);
+
                     _toggleLoggedIn(false);
                   },
                   child: Text('Sign Out'),
@@ -165,20 +192,29 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   child: Text('Delete Account'),
                 ),
+              SizedBox(height: 30),
+              TextButton(
+                onPressed: () {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                  // );
+                },
+                child: Text('Or'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PhoneLoginPage()),
+                  );
+                },
+                child: Text('Login with Mobile Number'),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: LoginPage(),
-    routes: {
-      '/signup': (context) => SignUpPage(),
-      '/home': (context) => HomePage(),
-    },
-  ));
 }

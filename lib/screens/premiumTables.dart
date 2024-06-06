@@ -9,6 +9,7 @@ import '../Tables/articles of indian constitution.dart';
 import '../Tables/capitals & currency.dart';
 import '../Tables/governors.dart';
 import '../Tables/who is who.dart';
+import '../admob/MyInterstitialAdWidget.dart';
 import 'ParaMedalsCountryWise.dart';
 import 'dataTables_countryWise.dart';
 import 'indianAsianMedals.dart';
@@ -69,7 +70,9 @@ class PremiumTables extends StatelessWidget {
 //parks_speciality
                 // _buildButton(context, 4, 'Rivers', riversScreen()),
                 // _buildButton(context, 5, 'Bird Sanctuaries', birdSanctuary()),
-
+                MyInterstitialAdWidget(
+                  adUnitId: 'ca-app-pub-8650911541008756/7410489682', // Provide your interstitial ad unit ID here
+                ),
               ],
             ),
           ),
